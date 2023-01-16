@@ -17,9 +17,30 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
   public static class DriveBaseConstants {
+    // Mathematics
+    public static final double SPEED = 10.0;  // meters per second
+    public static final double MAX_ANGULAR_VELOCITY = 2 * Math.PI; // one rotation per second
+    public static final double TRACK_WIDTH = 0.605; // meters
+    public static final double WHEEL_RADIUS = 0.07; // meters
+
+    // Motor Ports
     public static final int MOTOR_PORT_1 = 0;
     public static final int MOTOR_PORT_2 = 1;
     public static final int MOTOR_PORT_3 = 2;
     public static final int MOTOR_PORT_4 = 3;
+    
+    // Encoders
+    public static final int LEFT_ENCODER_PORT_A = 0;
+    public static final int LEFT_ENCODER_PORT_B = 1;
+    public static final int RIGHT_ENCODER_PORT_A = 2;
+    public static final int RIGHT_ENCODER_PORT_B = 3;
+    public static final boolean LEFT_ENCODER_REVERSED = false;
+    public static final boolean RIGHT_ENCODER_REVERSED = true;
+    public static final boolean LEFT_MOTORS_REVERSED = false;
+    public static final boolean RIGHT_MOTORS_REVERSED = true;
+    
+    public static final double ENCODER_RESOLUTION = 400; // 1X
+    public static final double DISTANCE_PER_PULSE = 2 * Math.PI * WHEEL_RADIUS / ENCODER_RESOLUTION;
+
   }
 }

@@ -4,17 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.DriveBaseConstants.LEFT_ENCODER_PORT_A;
-import static frc.robot.Constants.DriveBaseConstants.LEFT_ENCODER_PORT_B;
-import static frc.robot.Constants.DriveBaseConstants.LEFT_ENCODER_REVERSED;
-import static frc.robot.Constants.DriveBaseConstants.MOTOR_PORT_1;
-import static frc.robot.Constants.DriveBaseConstants.MOTOR_PORT_2;
-import static frc.robot.Constants.DriveBaseConstants.MOTOR_PORT_3;
-import static frc.robot.Constants.DriveBaseConstants.MOTOR_PORT_4;
-import static frc.robot.Constants.DriveBaseConstants.RIGHT_ENCODER_PORT_A;
-import static frc.robot.Constants.DriveBaseConstants.RIGHT_ENCODER_PORT_B;
-import static frc.robot.Constants.DriveBaseConstants.RIGHT_ENCODER_REVERSED;
-import static frc.robot.Constants.DriveBaseConstants.TRACK_WIDTH;
+import static frc.robot.Constants.DriveBaseConstants.*;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 

@@ -23,5 +23,8 @@ pluginManagement {
             name 'frcHome'
             url frcHomeMaven
         }
+        mavenCentral()
+        jcenter()
+        maven { url 'https://jitpack.io'}
     }
 }

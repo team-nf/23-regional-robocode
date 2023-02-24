@@ -25,6 +25,9 @@ pluginManagement {
         }
         mavenCentral()
         jcenter()
-        maven { url 'https://jitpack.io'}
+        maven { 
+            name 'jitpack'
+            url 'https://jitpack.io'
+            }
     }
 }

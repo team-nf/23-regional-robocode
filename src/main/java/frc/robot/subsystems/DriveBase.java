@@ -10,24 +10,34 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.ShiftGear;
+
+//import com.github.yehpop.nfsensors.*;
+
 
 public class DriveBase extends SubsystemBase {
   /** Creates a new DriveBase. */
   private final WPI_VictorSPX m_leftMaster = new WPI_VictorSPX(MOTOR_PORT_1);
   private final WPI_VictorSPX m_leftFollower = new WPI_VictorSPX(MOTOR_PORT_2);
+  private final WPI_VictorSPX m_leftThird = new WPI_VictorSPX(MOTOR_PORT_3);
   
-  private final WPI_VictorSPX m_rightMaster = new WPI_VictorSPX(MOTOR_PORT_3);
-  private final WPI_VictorSPX m_rightFollower = new WPI_VictorSPX(MOTOR_PORT_4);
+  private final WPI_VictorSPX m_rightMaster = new WPI_VictorSPX(MOTOR_PORT_4);
+  private final WPI_VictorSPX m_rightFollower = new WPI_VictorSPX(MOTOR_PORT_5);
+  private final WPI_VictorSPX m_rightThird = new WPI_VictorSPX(MOTOR_PORT_6);
   
-  public final MotorControllerGroup m_leftMotors;
-  public final MotorControllerGroup m_rightMotors;
+  private final MotorControllerGroup m_leftMotors;
+  private final MotorControllerGroup m_rightMotors;
 
   private final PIDController m_leftPIDController = new PIDController(1, 0, 0);
   private final PIDController m_rightPIDController = new PIDController(1, 0, 0);
@@ -35,32 +45,75 @@ public class DriveBase extends SubsystemBase {
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(1, 3);
   
   private final AnalogGyro m_gyro = new AnalogGyro(0);
-  private final DifferentialDriveOdometry m_odometry;
+  //private final MPU6050 mpu = new MPU6050();
   
+  private final DifferentialDriveOdometry m_odometry;
+
   // Encoders
   private final Encoder m_leftEncoder = new Encoder(LEFT_ENCODER_PORT_A, LEFT_ENCODER_PORT_B, LEFT_ENCODER_REVERSED, Encoder.EncodingType.k4X); 
   private final Encoder m_rightEncoder = new Encoder(RIGHT_ENCODER_PORT_A, RIGHT_ENCODER_PORT_B, RIGHT_ENCODER_REVERSED, Encoder.EncodingType.k4X); 
+
+  // ShiftGear
+  private final DoubleSolenoid m_shifter = new DoubleSolenoid(PN_ID, MODULE_TYPE, FORWARD_CHANNEL, REVERSE_CHANNEL);
   
   private final DifferentialDriveKinematics m_kinematics = 
   new DifferentialDriveKinematics(TRACK_WIDTH);
 
   public DriveBase() {
-    m_leftMotors = new MotorControllerGroup(m_leftMaster, m_leftFollower);
-    m_rightMotors = new MotorControllerGroup(m_rightMaster, m_rightFollower);
+    m_leftMotors = new MotorControllerGroup(m_leftMaster, m_leftFollower, m_leftThird);
+    m_rightMotors = new MotorControllerGroup(m_rightMaster, m_rightFollower, m_rightThird);
+    m_rightMotors.setInverted(true);
+
+    m_leftEncoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+    m_rightEncoder.setDistancePerPulse(DISTANCE_PER_PULSE);
 
     m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }
 
+  public void setSpeeds(DifferentialDriveWheelSpeeds speeds) {
+    final double leftFeedfoward = m_feedforward.calculate(speeds.leftMetersPerSecond);
+    final double rightFeedfoward = m_feedforward.calculate(speeds.rightMetersPerSecond);
+
+    final double leftOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), speeds.leftMetersPerSecond);
+    final double rightOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), speeds.rightMetersPerSecond);
+    
+    m_leftMotors.setVoltage(leftOutput + leftFeedfoward);
+    m_rightMotors.setVoltage(rightOutput + rightFeedfoward);
+  }
+  
+  public void drive(double speed, double rotation) {
+    var wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(speed, 0.0, rotation));
+    setSpeeds(wheelSpeeds);
+  }
+
+  public int getShifterState() {
+    Value state = m_shifter.get(); 
+    int value;
+    if (state == Value.kOff) {
+      value = 0;
+    } else if (state == Value.kReverse) {
+      value = -1;
+    } else if (state == Value.kForward) {
+      value = 1;
+    } else { value = 0; }
+    return value;
+  }
+
+  public void shiftGear() {
+    m_shifter.toggle();
+  }
+
   /**
-   * Example command factory method.
+   * Command constructer method.
    *
-   * @return a command
+   * @return a command to run once
    */
-  public CommandBase exampleMethodCommand() {
+  public CommandBase shifterCommand() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
+          new ShiftGear(this);
           /* one-time action goes here */
         });
   }
@@ -74,6 +127,23 @@ public class DriveBase extends SubsystemBase {
     // Query some boolean state, such as a digital sensor.
     return false;
   }
+
+  /**
+   * Condition of motion.
+   */
+  public boolean motion() {
+    if (m_rightMotors.get() != 0 & m_leftMotors.get() != 0) {
+      return true;
+    }
+    return false;
+  }
+
+  public boolean shifterCondition() {
+    if (motion() == false & getShifterState() == 1) {return true;}
+    return true;
+  }
+
+  public void resetEncoders() {}
 
   @Override
   public void periodic() {

@@ -139,8 +139,8 @@ public class DriveBase extends SubsystemBase {
   }
 
   public boolean shifterCondition() {
-    if (motion() == false & getShifterState() == 1) {return true;}
-    return true;
+    if (motion() == false & getShifterState() != 1) {return true;}
+    return false;
   }
 
   public void resetEncoders() {}

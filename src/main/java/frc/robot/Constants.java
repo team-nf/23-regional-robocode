@@ -53,15 +53,22 @@ public final class Constants {
     public static final int REVERSE_CHANNEL = 1;
   }
   public static class TurretConstants {
-    public static final double GEAR_RATE = 60.0/14.0*48.0/20.0*200.0/24.0;
     public static final int MOTOR_PORT = 0;
+    
+    public static final double GEAR_RATE = 60.0/14.0*48.0/20.0*200.0/24.0;
+    public static final double ENCODER_RESOLUTION = 42;
+
+    public static final double DISTANCE_PER_PULSE = 360. / (GEAR_RATE * ENCODER_RESOLUTION);
   }
   public static class CarriageConstants {
     public static final double GEAR_RATE = 36.0/12.0*56.0/18.0*56.0/18.0*36.0/12.0;
+    public static final double ENCODER_RESOLUTION = 42;
+
+    public static final double DISTANCE_PER_PULSE = 360. / (GEAR_RATE * ENCODER_RESOLUTION);
     
     public static final int MOTOR_PORT_1 = 2;
     public static final int MOTOR_PORT_2 = 3;
-
+    
     // Pneumatics
     public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.CTREPCM;
     public static final int PN_ID = 1;
@@ -71,17 +78,23 @@ public final class Constants {
   public static class GripperConstants {
     public static final int MOTOR_PORT_1 = 4;
     public static final int MOTOR_PORT_2 = 5;
-
+    
     // Pneumatics
     public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.CTREPCM;
-
+    
     public static final int PN_ID = 2;
     public static final int FORWARD_CHANNEL = 4;
     public static final int REVERSE_CHANNEL = 5;
   }
   public static class LiftConstants {
-    public static final double GEAR_RATE = 50.0/14.0*48.0/16.0;
+    public static final double GEAR_RATE = (50.0/14.0)*(48.0/16.0);
+    public static final double GEAR_RADIUS = .0035/2.0;
+    
     public static final int MOTOR_PORT = 1;
+
+    
+    public static final double ENCODER_RESOLUTION = 42;
+    public static final double DISTANCE_PER_PULSE = (2 * Math.PI * GEAR_RADIUS) / (ENCODER_RESOLUTION * GEAR_RATE);
   }
   public static class TestConstants {
     public static final double TEST_SPEED = 1.0;

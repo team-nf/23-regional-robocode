@@ -49,11 +49,11 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule command when condition changes to `true`
     //new Trigger(m_driveBase::condition).onTrue(new command());
-    new Trigger(m_driveBase::shifterCondition).onTrue(m_driveBase.shifterCommand());
+    new Trigger(m_driveBase::shifterCondition).onTrue(m_driveBase.shiftGear());
 
     // Schedule command when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.b().whileTrue(m_driveBase.shifterCommand());
+    m_driverController.b().whileTrue(m_driveBase.shiftGear());
   } 
 
   /**

@@ -59,6 +59,7 @@ public final class Constants {
     public static final double ENCODER_RESOLUTION = 42;
 
     public static final double DISTANCE_PER_PULSE = 360. / (GEAR_RATE * ENCODER_RESOLUTION);
+    public static final double DISTANCE_PER_REV = 360. / GEAR_RATE;
   }
   public static class CarriageConstants {
     public static final double GEAR_RATE = 36.0/12.0*56.0/18.0*56.0/18.0*36.0/12.0;

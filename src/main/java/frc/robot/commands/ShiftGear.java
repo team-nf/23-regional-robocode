@@ -2,6 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+
+// COMMAND NOT IN USE!
+// Code is still here as an "in case" option.
+// The drivebase.shiftGear() method used in this code is commented out in the subsystem and replaced.
+// The rewritten drivebase.shiftGear method now uses an inline command like suggested below.
+
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;

@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 public class DriveBase extends SubsystemBase {
-  /** Creates a new DriveBase. */
+  // Motors
   private final WPI_VictorSPX m_leftMaster = new WPI_VictorSPX(MOTOR_PORT_1);
   private final WPI_VictorSPX m_leftFollower = new WPI_VictorSPX(MOTOR_PORT_2);
   private final WPI_VictorSPX m_leftThird = new WPI_VictorSPX(MOTOR_PORT_3);
@@ -39,34 +39,41 @@ public class DriveBase extends SubsystemBase {
   private final MotorControllerGroup m_leftMotors;
   private final MotorControllerGroup m_rightMotors;
 
+  // Control systems for motors
   private final PIDController m_leftPIDController = new PIDController(1, 0, 0);
   private final PIDController m_rightPIDController = new PIDController(1, 0, 0);
   
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(1, 3);
   
+  // Shifter
+  private final DoubleSolenoid m_shifter = new DoubleSolenoid(PN_ID, MODULE_TYPE, FORWARD_CHANNEL, REVERSE_CHANNEL);
+  
+  // Sensors
+
+  // Gyro
   private final AnalogGyro m_gyro = new AnalogGyro(0);
   //private final MPU6050 mpu = new MPU6050();
   
-  private final DifferentialDriveOdometry m_odometry;
-
   // Encoders
   private final Encoder m_leftEncoder = new Encoder(LEFT_ENCODER_PORT_A, LEFT_ENCODER_PORT_B, LEFT_ENCODER_REVERSED, Encoder.EncodingType.k4X); 
   private final Encoder m_rightEncoder = new Encoder(RIGHT_ENCODER_PORT_A, RIGHT_ENCODER_PORT_B, RIGHT_ENCODER_REVERSED, Encoder.EncodingType.k4X); 
 
-  // ShiftGear
-  private final DoubleSolenoid m_shifter = new DoubleSolenoid(PN_ID, MODULE_TYPE, FORWARD_CHANNEL, REVERSE_CHANNEL);
-  
-  private final DifferentialDriveKinematics m_kinematics = 
-  new DifferentialDriveKinematics(TRACK_WIDTH);
+  // Odometry and Kinematics
+  private final DifferentialDriveOdometry m_odometry;
+  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
 
+  /**Constructor. Creates new drive base object. */
   public DriveBase() {
+    // Define motor driver groups and invert right side.
     m_leftMotors = new MotorControllerGroup(m_leftMaster, m_leftFollower, m_leftThird);
     m_rightMotors = new MotorControllerGroup(m_rightMaster, m_rightFollower, m_rightThird);
     m_rightMotors.setInverted(true);
 
+    // Set encoders
     m_leftEncoder.setDistancePerPulse(DISTANCE_PER_PULSE);
     m_rightEncoder.setDistancePerPulse(DISTANCE_PER_PULSE);
 
+    // Construct odometry object
     m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }
 

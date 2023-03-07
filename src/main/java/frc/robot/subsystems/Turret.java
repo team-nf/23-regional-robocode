@@ -18,10 +18,7 @@ public class Turret extends SubsystemBase {
   private final CANSparkMax m_driver = new CANSparkMax(MOTOR_ID, MotorType.kBrushless);
 
   // Encoder built-in on neo550
-  private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kQuadrature, (int)(ENCODER_CPR));
-  
-  //
-  
+  private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kQuadrature, (int)(ENCODER_CPR));  
 
   /** Creates a new Turret. */
   public Turret() {

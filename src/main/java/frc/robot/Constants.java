@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
  */
 public final class Constants {
   public static class OperatorConstants {
+    // Controller Ports
     public static final int DRIVER_CONTROLLER_PORT = 0;
+    public static final int OPERATOR_CONTROLLER_PORT = 1;
   }
   public static class DriveBaseConstants {
     // Mathematics
@@ -63,6 +65,22 @@ public final class Constants {
     public static final double DISTANCE_PER_COUNT = 360. / (GEAR_RATE * ENCODER_CPR);
     public static final double DISTANCE_PER_REV = 360. / GEAR_RATE;
   }
+  public static class LiftConstants {
+    public static final double GEAR_RATE = (50.0/14.0)*(48.0/16.0);
+    public static final double GEAR_RADIUS = .0035/2.0;
+    
+    public static final int MOTOR_ID = 1;
+
+    
+    public static final double ENCODER_RESOLUTION = 42;
+    public static final double ENCODER_CPR = ENCODER_RESOLUTION * 4;
+    /**meters */
+    public static final double DISTANCE_PER_PULSE = (2 * Math.PI * GEAR_RADIUS) / (ENCODER_RESOLUTION * GEAR_RATE);
+    /**meters */
+    public static final double DISTANCE_PER_REV = (2 * Math.PI * GEAR_RADIUS) / GEAR_RATE;    
+    /**meters */
+    public static final double DISTANCE_PER_COUNT = (2 * Math.PI * GEAR_RADIUS) / (ENCODER_CPR * GEAR_RATE);
+  }
   public static class CarriageConstants {
     public static final double GEAR_RATE = 36.0/12.0*56.0/18.0*56.0/18.0*36.0/12.0;
     public static final double ENCODER_RESOLUTION = 42;
@@ -91,22 +109,6 @@ public final class Constants {
     public static final int PN_ID = 2;
     public static final int FORWARD_CHANNEL = 4;
     public static final int REVERSE_CHANNEL = 5;
-  }
-  public static class LiftConstants {
-    public static final double GEAR_RATE = (50.0/14.0)*(48.0/16.0);
-    public static final double GEAR_RADIUS = .0035/2.0;
-    
-    public static final int MOTOR_ID = 1;
-
-    
-    public static final double ENCODER_RESOLUTION = 42;
-    public static final double ENCODER_CPR = ENCODER_RESOLUTION * 4;
-    /**meters */
-    public static final double DISTANCE_PER_PULSE = (2 * Math.PI * GEAR_RADIUS) / (ENCODER_RESOLUTION * GEAR_RATE);
-    /**meters */
-    public static final double DISTANCE_PER_REV = (2 * Math.PI * GEAR_RADIUS) / GEAR_RATE;    
-    /**meters */
-    public static final double DISTANCE_PER_COUNT = (2 * Math.PI * GEAR_RADIUS) / (ENCODER_CPR * GEAR_RATE);
   }
   public static class TestConstants {
     public static final double TEST_SPEED = 1.0;

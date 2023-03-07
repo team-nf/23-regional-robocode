@@ -36,6 +36,9 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
   new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+
+  private final CommandXboxController m_operatorController =
+  new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
   
   // The robot's commands are defined here
   private final Drive m_driveCommand = new Drive(m_driveBase, m_driverController);

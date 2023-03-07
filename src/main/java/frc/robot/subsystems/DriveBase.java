@@ -124,25 +124,36 @@ public class DriveBase extends SubsystemBase {
    * Condition of the shifter on the drive base.
    * Used to reset shifter when drive base is not in motion.
    * 
-   * @return true if robot is not in motion and shifter is pushed.
+   * @return true if shifter is pushed.
    */
   public boolean shifterCondition() {
-    if (motion() == false & getShifterState() != 1) {return true;}
+    if (m_shifter.get() == Value.kReverse) {return true;}
     return false;
   }
   
-    public int getShifterState() {
-      Value state = m_shifter.get(); 
-      int value;
-      if (state == Value.kOff) {
-        value = 0;
-      } else if (state == Value.kReverse) {
-        value = -1;
-      } else if (state == Value.kForward) {
-        value = 1;
-      } else { value = 0; }
-      return value;
-    }
+  ///**
+  // * Condition of the shifter on the drive base.
+  // * Used to reset shifter when drive base is not in motion.
+  // * 
+  // * @return true if robot is not in motion and shifter is pushed.
+  // */
+  //public boolean shifterCondition() {
+  //  if (motion() == false & getShifterState() != 1) {return true;}
+  //  return false;
+  //}
+  //
+  //public int getShifterState() {
+  //  Value state = m_shifter.get(); 
+  //  int value;
+  //  if (state == Value.kOff) {
+  //    value = 0;
+  //  } else if (state == Value.kReverse) {
+  //    value = -1;
+  //  } else if (state == Value.kForward) {
+  //    value = 1;
+  //  } else { value = 0; }
+  //  return value;
+  //}
 
   public void resetEncoders() {
     m_leftEncoder.reset();

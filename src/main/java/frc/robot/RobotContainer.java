@@ -5,10 +5,16 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+
 import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
+
 import frc.robot.subsystems.DriveBase;
-import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Lift;
+import frc.robot.subsystems.Carriage;
+import frc.robot.subsystems.Gripper;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -22,6 +28,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems are defined here...
   private final DriveBase m_driveBase = new DriveBase();
+  private final Turret m_turret = new Turret();
+  private final Lift m_lift = new Lift();
+  private final Carriage m_carriage = new Carriage();
+  private final Gripper m_gripper = new Gripper();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -49,7 +59,8 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule command when condition changes to `true`
     //new Trigger(m_driveBase::condition).onTrue(new command());
-    new Trigger(m_driveBase::shifterCondition).onTrue(m_driveBase.shiftGear());
+    new Trigger(m_driveBase::motion).negate().and(m_driveBase::shifterCondition).onTrue(m_driveBase.shiftGear());
+    new Trigger(m_lift::panicCondition).and(m_lift::motion).onTrue(m_lift.brake());
 
     // Schedule command when the Xbox controller's B button is pressed,
     // cancelling on release.

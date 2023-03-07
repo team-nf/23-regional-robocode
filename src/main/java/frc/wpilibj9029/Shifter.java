@@ -17,7 +17,7 @@ public class Shifter {
 
     public Shifter() {}
 
-    public void setShift() {
+    public void shiftGear() {
         
     }
 

@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.ShiftGear;
+//import frc.robot.commands.ShiftGear;
 
 //import com.github.yehpop.nfsensors.*;
 
@@ -85,39 +85,18 @@ public class DriveBase extends SubsystemBase {
     var wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(speed, 0.0, rotation));
     setSpeeds(wheelSpeeds);
   }
-
-  public int getShifterState() {
-    Value state = m_shifter.get(); 
-    int value;
-    if (state == Value.kOff) {
-      value = 0;
-    } else if (state == Value.kReverse) {
-      value = -1;
-    } else if (state == Value.kForward) {
-      value = 1;
-    } else { value = 0; }
-    return value;
-  }
-
-  public void shiftGear() {
-    m_shifter.toggle();
-  }
-
+  
   /**
    * Command constructer method.
    *
-   * @return a command to run once
+   * @return command instant command that shifts the gears at the drive base.
    */
-  public CommandBase shifterCommand() {
+  public CommandBase shiftGear() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          new ShiftGear(this);
-          /* one-time action goes here */
-        });
+    return this.runOnce(() -> m_shifter.toggle());
   }
-
+  
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).
    *
@@ -127,9 +106,12 @@ public class DriveBase extends SubsystemBase {
     // Query some boolean state, such as a digital sensor.
     return false;
   }
-
+  
   /**
    * Condition of motion.
+   * False; if both sides of drive base are not in motion
+   * 
+   * @return boolean value.
    */
   public boolean motion() {
     if (m_rightMotors.get() != 0 & m_leftMotors.get() != 0) {
@@ -138,12 +120,34 @@ public class DriveBase extends SubsystemBase {
     return false;
   }
 
+  /**
+   * Condition of the shifter on the drive base.
+   * Used to reset shifter when drive base is not in motion.
+   * 
+   * @return true if robot is not in motion and shifter is pushed.
+   */
   public boolean shifterCondition() {
     if (motion() == false & getShifterState() != 1) {return true;}
     return false;
   }
+  
+    public int getShifterState() {
+      Value state = m_shifter.get(); 
+      int value;
+      if (state == Value.kOff) {
+        value = 0;
+      } else if (state == Value.kReverse) {
+        value = -1;
+      } else if (state == Value.kForward) {
+        value = 1;
+      } else { value = 0; }
+      return value;
+    }
 
-  public void resetEncoders() {}
+  public void resetEncoders() {
+    m_leftEncoder.reset();
+    m_rightEncoder.reset();
+  }
 
   @Override
   public void periodic() {

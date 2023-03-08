@@ -60,14 +60,32 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule command when condition changes to `true`
-    //new Trigger(m_driveBase::condition).onTrue(new command());
+    //new Trigger(subsystem::condition).onTrue(command());
+
+    // Drive Base
+    // Schedule command to shift gear back to default when condition changes to `true` -when not moving and shifter is not default-
     new Trigger(m_driveBase::motion).negate().and(m_driveBase::shifterCondition).onTrue(m_driveBase.shiftGear());
+
+    // Lift
+    // Schedule brake command when boths conditions are true -lift is not in motion and switch is hit-
     new Trigger(m_lift::panicCondition).and(m_lift::motion).onTrue(m_lift.brake());
 
-    // Schedule command when the Xbox controller's B button is pressed,
-    // cancelling on release.
+    // Carriage
+    new Trigger(m_carriage::armLimit).onTrue(m_carriage.reset(m_carriage.arm()));
+    new Trigger(m_carriage::wristLimit).onTrue(m_carriage.reset(m_carriage.wrist()));
+
+    // Drive Base
+    // Schedule command to shift gears when the Xbox controller's B button is pressed, cancelling on release.
     m_driverController.b().whileTrue(m_driveBase.shiftGear());
+
+    // Carriage
+    m_operatorController.x().onTrue(m_carriage.rotate(90, m_carriage.arm()));
+
+    // Gripper
+    m_operatorController.leftTrigger().onTrue(m_gripper.grip());
+    m_operatorController.rightTrigger().onTrue(m_gripper.shoot().withTimeout(0.5));
+    m_operatorController.rightBumper().whileTrue(m_gripper.intake());
+
   } 
 
   /**

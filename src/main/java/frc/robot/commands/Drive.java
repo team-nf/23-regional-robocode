@@ -67,6 +67,6 @@ public class Drive extends CommandBase {
   }
 
   public void test() {
-    m_driveBase.drive(TEST_SPEED, TEST_ANGULAR);
+    m_driveBase.drive(TEST_CHASSIS_SPEED, TEST_CHASSIS_ANGULAR);
   }
 }

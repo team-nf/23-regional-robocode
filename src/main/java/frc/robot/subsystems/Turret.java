@@ -9,6 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.TurretConstants.*;
@@ -19,6 +20,8 @@ public class Turret extends SubsystemBase {
 
   // Encoder built-in on neo550
   private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kQuadrature, (int)(ENCODER_CPR));  
+  // Limit switch
+  private final DigitalInput m_limit = new DigitalInput(LIMIT_CH);
 
   /** Creates a new Turret. */
   public Turret() {

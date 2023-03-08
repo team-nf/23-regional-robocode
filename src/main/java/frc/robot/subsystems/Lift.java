@@ -24,8 +24,8 @@ public class Lift extends SubsystemBase {
   private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kQuadrature, (int)(ENCODER_CPR));
 
   // Limit Switches
-  private final DigitalInput m_topLimit = new DigitalInput(0);
-  private final DigitalInput m_bottomLimit = new DigitalInput(1);
+  private final DigitalInput m_topLimit = new DigitalInput(LIMIT_CH_1);
+  private final DigitalInput m_bottomLimit = new DigitalInput(LIMIT_CH_2);
   
   /** Creates a new Lift. */
   public Lift() {

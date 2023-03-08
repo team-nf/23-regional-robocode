@@ -44,6 +44,9 @@ public final class Constants {
     public static final boolean RIGHT_ENCODER_REVERSED = true;
     public static final boolean LEFT_MOTORS_REVERSED = false;
     public static final boolean RIGHT_MOTORS_REVERSED = true;
+
+    // Switches
+    public static final int LIMIT_CH = 0;
     
     public static final double ENCODER_RESOLUTION = 400; // 1X
     public static final double DISTANCE_PER_PULSE = 2 * Math.PI * WHEEL_RADIUS / ENCODER_RESOLUTION;
@@ -56,6 +59,7 @@ public final class Constants {
   }
   public static class TurretConstants {
     public static final int MOTOR_ID = 0;
+    public static final int LIMIT_CH = 1;
     
     public static final double GEAR_RATE = 60.0/14.0*48.0/20.0*200.0/24.0;
     public static final double ENCODER_RESOLUTION = 42;
@@ -70,7 +74,8 @@ public final class Constants {
     public static final double GEAR_RADIUS = .0035/2.0;
     
     public static final int MOTOR_ID = 1;
-
+    public static final int LIMIT_CH_1 = 2;
+    public static final int LIMIT_CH_2 = 3;
     
     public static final double ENCODER_RESOLUTION = 42;
     public static final double ENCODER_CPR = ENCODER_RESOLUTION * 4;
@@ -85,6 +90,10 @@ public final class Constants {
     public static final double GEAR_RATE = 36.0/12.0*56.0/18.0*56.0/18.0*36.0/12.0;
     public static final double ENCODER_RESOLUTION = 42;
     public static final double ENCODER_CPR = ENCODER_RESOLUTION * 4;
+    public static final double WRIST_START = 0.0;
+    public static final double ARM_START = 0.0;
+    public static final int LIMIT_CH_1 = 4;
+    public static final int LIMIT_CH_2 = 5;
 
     public static final double DISTANCE_PER_PULSE = 360. / (GEAR_RATE * ENCODER_RESOLUTION);
     public static final double DISTANCE_PER_COUNT = 360. / (GEAR_RATE * ENCODER_CPR);
@@ -95,23 +104,40 @@ public final class Constants {
     
     // Pneumatics
     public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.CTREPCM;
-    public static final int PN_ID = 1;
-    public static final int FORWARD_CHANNEL = 2;
-    public static final int REVERSE_CHANNEL = 3;
+    public static final int PN_ID_1 = 1;
+    public static final int PN_ID_2 = 2;
+    public static final int FORWARD_CHANNEL_1 = 2;
+    public static final int REVERSE_CHANNEL_1 = 3;
+    public static final int FORWARD_CHANNEL_2 = 4;
+    public static final int REVERSE_CHANNEL_2 = 5;
   }
   public static class GripperConstants {
+    // Motors
     public static final int MOTOR_ID_1 = 4;
     public static final int MOTOR_ID_2 = 5;
+
+    public static final double INTAKE_SPEED = 0.6;
+    public static final double SHOOTER_SPEED = 0.4;
     
     // Pneumatics
     public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.CTREPCM;
-    
-    public static final int PN_ID = 2;
-    public static final int FORWARD_CHANNEL = 4;
-    public static final int REVERSE_CHANNEL = 5;
+    public static final int PN_ID = 3;
+    public static final int FORWARD_CHANNEL = 6;
+    public static final int REVERSE_CHANNEL = 7;
   }
   public static class TestConstants {
-    public static final double TEST_SPEED = 1.0;
-    public static final double TEST_ANGULAR = 2 * Math.PI;
+    // Drive Base
+    public static final double TEST_CHASSIS_SPEED = 1.0;
+    public static final double TEST_CHASSIS_ANGULAR = 2 * Math.PI;
+    
+    // Turret
+
+    // Lift
+
+    // Carriage
+
+    // Gripper
+    public static final double TEST_INTAKE_SPEED = 0.6;
+    public static final double TEST_SHOOTER_SPEED = 0.2;
   }
 }

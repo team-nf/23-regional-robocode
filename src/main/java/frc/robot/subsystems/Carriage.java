@@ -21,7 +21,7 @@ import static frc.robot.Constants.CarriageConstants.*;
 public class Carriage extends SubsystemBase {
   private class Component {
     private final double kPos;
-    // Neo 550.
+    // Neo
     private final CANSparkMax m_driver;
     private final RelativeEncoder m_encoder;
     private final DoubleSolenoid m_brake;
@@ -35,7 +35,7 @@ public class Carriage extends SubsystemBase {
       m_brake = new DoubleSolenoid(pneumatic_id, MODULE_TYPE, forward_ch, rev_ch);
       m_limit = new DigitalInput(limit_ch);
       
-      m_encoder = m_driver.getEncoder(Type.kQuadrature, (int)(ENCODER_CPR));
+      m_encoder = m_driver.getEncoder(Type.kHallSensor, (int)(ENCODER_CPR));
       m_encoder.setPositionConversionFactor(DISTANCE_PER_COUNT);
       m_encoder.setPosition(encoder_position);
     }
@@ -102,6 +102,9 @@ public class Carriage extends SubsystemBase {
   public double angle() {
     return m_wrist.position() - m_arm.position();
   }
+
+  // TEST
+  public CommandBase test() {return startEnd(() -> System.out.println(m_arm.limit()), () -> System.out.println(m_wrist.limit()));}
 
   @Override
   public void periodic() {

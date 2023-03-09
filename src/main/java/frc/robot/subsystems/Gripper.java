@@ -18,14 +18,14 @@ import static frc.robot.Constants.GripperConstants.*;
 public class Gripper extends SubsystemBase {
   private final DoubleSolenoid m_grip = new DoubleSolenoid(PN_ID, MODULE_TYPE, FORWARD_CHANNEL, REVERSE_CHANNEL);
 
-  // Neo's
+  // Neo 550
   private final CANSparkMax m_leftDriver = new CANSparkMax(MOTOR_ID_1, MotorType.kBrushless);
   private final CANSparkMax m_rightDriver = new CANSparkMax(MOTOR_ID_2, MotorType.kBrushless);
   private final MotorControllerGroup m_drivers;
 
   /** Creates a new Gripper. */
   public Gripper() {
-    // this should make it so that right is inverted, follows left ansetShiftd i can control them with m_driver
+    // this should make it so that right is inverted, follows left and i can control them with m_driver
     m_rightDriver.follow(m_leftDriver, true);
     m_drivers = new MotorControllerGroup(m_leftDriver, m_rightDriver);
   }
@@ -89,6 +89,9 @@ public class Gripper extends SubsystemBase {
     if (m_drivers.get() == 0) {return false;}
     return true;
   }
+
+  // TESTING
+  public CommandBase test() {return startEnd(() -> stop(), () -> stop());}
 
   @Override
   public void periodic() {

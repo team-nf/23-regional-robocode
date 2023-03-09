@@ -10,16 +10,17 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.TurretConstants.*;
 
 public class Turret extends SubsystemBase {
-  // Neo 550
+  // Neo
   private final CANSparkMax m_driver = new CANSparkMax(MOTOR_ID, MotorType.kBrushless);
 
   // Encoder built-in on neo550
-  private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kQuadrature, (int)(ENCODER_CPR));  
+  private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kHallSensor, (int)(ENCODER_CPR));  
   // Limit switch
   private final DigitalInput m_limit = new DigitalInput(LIMIT_CH);
 
@@ -32,4 +33,6 @@ public class Turret extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  public CommandBase test() {return startEnd(() -> System.out.println(m_encoder.getPosition()), () -> System.out.println(m_encoder.getPosition()));}
 }

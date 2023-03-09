@@ -171,6 +171,11 @@ public class DriveBase extends SubsystemBase {
     m_rightEncoder.reset();
   }
 
+  // TEST
+  public CommandBase test() {
+    return startEnd(() -> m_rightEncoder.reset(), () -> m_leftEncoder.reset());
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

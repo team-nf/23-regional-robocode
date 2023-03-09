@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
@@ -14,19 +15,23 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.LiftConstants.*;
+import static frc.robot.Constants.TestConstants.*;
 
 public class Lift extends SubsystemBase {
-  // Neo550
+  // Neo
   private final CANSparkMax m_driver = new CANSparkMax(MOTOR_ID, MotorType.kBrushless);
 
   // Encoder
   // counts per revolution is the amount of millimeters the lift moves every revolution
-  private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kQuadrature, (int)(ENCODER_CPR));
+  private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kHallSensor, (int)(ENCODER_CPR));
 
   // Limit Switches
   private final DigitalInput m_topLimit = new DigitalInput(LIMIT_CH_1);
   private final DigitalInput m_bottomLimit = new DigitalInput(LIMIT_CH_2);
-  
+
+  //private final SparkMaxLimitSwitch m_topLimit = m_driver.getForwardLimitSwitch(com.revrobotics.SparkMaxLimitSwitch.Type.kNormallyClosed);
+  //private final SparkMaxLimitSwitch m_bottomLimit = m_driver.getReverseLimitSwitch(com.revrobotics.SparkMaxLimitSwitch.Type.kNormallyClosed);
+
   /** Creates a new Lift. */
   public Lift() {
     m_encoder.setPositionConversionFactor(DISTANCE_PER_COUNT);
@@ -61,6 +66,15 @@ public class Lift extends SubsystemBase {
   public boolean motion() {
     if (m_driver.get() != 0) {return true;}
     return false;
+  }
+
+  // TESTING
+  public CommandBase test() {
+    return startEnd(() -> brake(), () -> brake());
+  }
+
+  public void testSpeed() {
+    m_driver.set(TEST_LIFT_SPEED);
   }
 
   @Override

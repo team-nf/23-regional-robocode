@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,6 +29,9 @@ public class Gripper extends SubsystemBase {
     // this should make it so that right is inverted, follows left and i can control them with m_driver
     m_rightDriver.follow(m_leftDriver, true);
     m_drivers = new MotorControllerGroup(m_leftDriver, m_rightDriver);
+
+    // Set solenoid
+    m_grip.set(Value.kReverse);
   }
 
   /**

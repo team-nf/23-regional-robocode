@@ -54,13 +54,13 @@ public final class Constants {
     public static final double DISTANCE_PER_PULSE = 2 * Math.PI * WHEEL_RADIUS / ENCODER_RESOLUTION;
 
     // Pneumatics
-    public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.CTREPCM;
+    public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.REVPH;
     public static final int PN_ID = 0;
     public static final int FORWARD_CHANNEL = 0;
     public static final int REVERSE_CHANNEL = 1;
   }
   public static class TurretConstants {
-    public static final int MOTOR_ID = 1;
+    public static final int MOTOR_ID = 5;
     public static final int LIMIT_CH = 1;
     
     public static final double GEAR_RATE = 60.0/14.0*48.0/20.0*200.0/24.0;
@@ -128,11 +128,11 @@ public final class Constants {
     public static final double DISTANCE_PER_COUNT = 360. / (GEAR_RATE * ENCODER_CPR);
     public static final double DISTANCE_PER_REV = 360. / GEAR_RATE;
     
-    public static final int MOTOR_ID_1 = 5;
+    public static final int MOTOR_ID_1 = 1;
     public static final int MOTOR_ID_2 = 6;
     
     // Pneumatics
-    public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.CTREPCM;
+    public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.REVPH;
     public static final int PN_ID_1 = 1;
     public static final int PN_ID_2 = 2;
     public static final int FORWARD_CHANNEL_1 = 2;
@@ -175,7 +175,7 @@ public final class Constants {
     public static final double SHOOTER_SPEED = 0.3;
     
     // Pneumatics
-    public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.CTREPCM;
+    public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.REVPH;
     public static final int PN_ID = 3;
     public static final int FORWARD_CHANNEL = 6;
     public static final int REVERSE_CHANNEL = 7;

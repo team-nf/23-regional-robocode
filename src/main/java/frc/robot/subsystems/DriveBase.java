@@ -77,6 +77,9 @@ public class DriveBase extends SubsystemBase {
     m_leftEncoder.setDistancePerPulse(DISTANCE_PER_PULSE);
     m_rightEncoder.setDistancePerPulse(DISTANCE_PER_PULSE);
 
+    // Set solenoid
+    m_shifter.set(Value.kReverse);
+
     // Construct odometry object
     m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }

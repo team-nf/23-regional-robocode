@@ -105,6 +105,8 @@ public class Carriage extends SubsystemBase {
     }
     
     public void brake() {m_brake.set(Value.kForward);}
+
+    public void coast() {m_brake.set(Value.kReverse);}    
     
     public void reset() {m_encoder.setPosition(kPos);}
     
@@ -274,6 +276,8 @@ public class Carriage extends SubsystemBase {
     }
     
     public void brake() {m_brake.set(Value.kForward);}
+   
+    public void coast() {m_brake.set(Value.kReverse);} 
     
     public void reset() {m_encoder.setPosition(kPos);}
     
@@ -347,11 +351,11 @@ public class Carriage extends SubsystemBase {
   // Command factories ---------------------------------------
 
   public CommandBase brake(Component component) {
-    return this.runOnce(() -> component.brake());  
+    return this.startEnd(() -> component.brake(), () -> component.coast());  
   }
 
   public CommandBase brake(ProfiledComponent component) {
-    return this.runOnce(() -> component.brake());  
+    return this.startEnd(() -> component.brake(), () -> component.coast());  
   }
 
   public CommandBase rotate(double angle, Component component) {

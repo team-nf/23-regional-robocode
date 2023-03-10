@@ -19,6 +19,8 @@ public final class Constants {
     // Controller Ports
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int OPERATOR_CONTROLLER_PORT = 1;
+
+    public static final boolean OPERATING = false;
   }
   public static class DriveBaseConstants {
     // Mathematics
@@ -64,10 +66,34 @@ public final class Constants {
     public static final double GEAR_RATE = 60.0/14.0*48.0/20.0*200.0/24.0;
     //public static final double ENCODER_RESOLUTION = 42;
     public static final double ENCODER_CPR = 42;
+    public static final double ENCODER_START = 0;
 
     //public static final double DISTANCE_PER_PULSE = 360. / (GEAR_RATE * ENCODER_RESOLUTION);
     public static final double DISTANCE_PER_COUNT = 360. / (GEAR_RATE * ENCODER_CPR);
     public static final double DISTANCE_PER_REV = 360. / GEAR_RATE;
+
+    // PID Coefficients
+    public static final int PID_SLOT = 0;
+    public static final double P = 5e-5;
+    public static final double I = 1e-6;
+    public static final double D = 0; 
+    public static final double IZ = 0; 
+    public static final double FF = 0.000156; 
+    public static final double MAX_OUTPUT = 1; 
+    public static final double MIN_OUTPUT = -1;
+    public static final double MAX_RPM = 330; 
+    // Smart Motion Coefficients
+    public static final double MAX_VEL = 330; // rpm
+    public static final double MIN_VEL = -330;
+    public static final double MAX_ACC = 12; 
+    public static final double ALLOWED_ERR = 5;
+    // Feedforward Coefficients
+    public static final double S = 1;
+    public static final double G = 1;
+    public static final double V = 0.5;
+    public static final double A = 0.1;
+
+    public static final boolean MANUAL = OperatorConstants.OPERATING;
   }
   public static class LiftConstants {
     public static final double GEAR_RATE = (50.0/14.0)*(48.0/16.0);
@@ -123,11 +149,11 @@ public final class Constants {
     public static final double FF = 0.000156; 
     public static final double MAX_OUTPUT = 1; 
     public static final double MIN_OUTPUT = -1;
-    public static final double MAX_RPM = 5700; 
+    public static final double MAX_RPM = 240; 
     // Smart Motion Coefficients
-    public static final double MAX_VEL = 330; // rpm
-    public static final double MIN_VEL = -330;
-    public static final double MAX_ACC = 1500; 
+    public static final double MAX_VEL = 180; // rpm
+    public static final double MIN_VEL = -180;
+    public static final double MAX_ACC = 10; 
     public static final double ALLOWED_ERR = 5;
     // Feedforward Coefficients
     public static final double S = 1;
@@ -135,7 +161,7 @@ public final class Constants {
     public static final double V = 0.5;
     public static final double A = 0.1;
 
-    public static final boolean MANUAL = false;
+    public static final boolean MANUAL = OperatorConstants.OPERATING;
 
     // Max Velocity Degrees Per Second, Max Acceleration Degrees Per Second Squared
     public static final double[] CONSTRAINTS = {45, 57.2957795130931}; 

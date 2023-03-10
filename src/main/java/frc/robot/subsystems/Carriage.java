@@ -34,7 +34,7 @@ public class Carriage extends SubsystemBase {
     private final RelativeEncoder m_encoder;
     private final DoubleSolenoid m_brake;
     private final DigitalInput m_limit;
-    private final SparkMaxLimitSwitch m_revLimit;
+    private final SparkMaxLimitSwitch m_driverLimit;
     
     private final SparkMaxPIDController pidcontroller;
     private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM, maxVel, minVel, maxAcc, allowedErr;
@@ -51,7 +51,7 @@ public class Carriage extends SubsystemBase {
       m_driver = new CANSparkMax(motor_id, MotorType.kBrushless);
       m_brake = new DoubleSolenoid(pneumatic_id, MODULE_TYPE, forward_ch, rev_ch);
       m_limit = new DigitalInput(limit_ch);
-      m_revLimit = m_driver.getForwardLimitSwitch(com.revrobotics.SparkMaxLimitSwitch.Type.kNormallyClosed);
+      m_driverLimit = m_driver.getForwardLimitSwitch(com.revrobotics.SparkMaxLimitSwitch.Type.kNormallyClosed);
       
       
       // Encoder

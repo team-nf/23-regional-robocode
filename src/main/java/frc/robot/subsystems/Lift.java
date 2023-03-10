@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxLimitSwitch;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
@@ -20,10 +21,11 @@ import static frc.robot.Constants.TestConstants.*;
 public class Lift extends SubsystemBase {
   // Neo
   private final CANSparkMax m_driver = new CANSparkMax(MOTOR_ID, MotorType.kBrushless);
-
+  
   // Encoder
   // counts per revolution is the amount of millimeters the lift moves every revolution
   private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kHallSensor, (int)(ENCODER_CPR));
+  private final SparkMaxPIDController pidcontroller = m_driver.getPIDController();
 
   // Limit Switches
   private final DigitalInput m_topLimit = new DigitalInput(LIMIT_CH_1);

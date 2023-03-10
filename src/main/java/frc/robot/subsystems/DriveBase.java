@@ -138,7 +138,7 @@ public class DriveBase extends SubsystemBase {
    * @return true if shifter is pushed.
    */
   public boolean shifterCondition() {
-    if (m_shifter.get() == Value.kReverse) {return true;}
+    if (m_shifter.get() == Value.kForward) {return true;}
     return false;
   }
   

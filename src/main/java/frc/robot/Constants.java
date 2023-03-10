@@ -113,6 +113,26 @@ public final class Constants {
     public static final int REVERSE_CHANNEL_1 = 3;
     public static final int FORWARD_CHANNEL_2 = 4;
     public static final int REVERSE_CHANNEL_2 = 5;
+    
+    // PID Coefficients
+    public static final double P = 5e-5;
+    public static final double I = 1e-6;
+    public static final double D = 0; 
+    public static final double IZ = 0; 
+    public static final double FF = 0.000156; 
+    public static final double MAX_OUTPUT = 1; 
+    public static final double MIN_OUTPUT = -1;
+    public static final double MAX_RPM = 5700; 
+    // Smart Motion Coefficients
+    public static final double MAX_VEL = 330; // rpm
+    public static final double MIN_VEL = -330;
+    public static final double MAX_ACC = 1500; 
+    public static final double ALLOWED_ERR = 5;
+    // Feedforward Coefficients
+    public static final double S = 1;
+    public static final double G = 1;
+    public static final double V = 0.5;
+    public static final double A = 0.1;
   }
   public static class GripperConstants {
     // Motors

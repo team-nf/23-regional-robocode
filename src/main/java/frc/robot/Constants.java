@@ -115,6 +115,7 @@ public final class Constants {
     public static final int REVERSE_CHANNEL_2 = 5;
     
     // PID Coefficients
+    public static final int PID_SLOT = 0;
     public static final double P = 5e-5;
     public static final double I = 1e-6;
     public static final double D = 0; 
@@ -133,6 +134,11 @@ public final class Constants {
     public static final double G = 1;
     public static final double V = 0.5;
     public static final double A = 0.1;
+
+    public static final boolean MANUAL = false;
+
+    // Max Velocity Degrees Per Second, Max Acceleration Degrees Per Second Squared
+    public static final double[] CONSTRAINTS = {45, 57.2957795130931}; 
   }
   public static class GripperConstants {
     // Motors

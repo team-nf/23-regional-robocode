@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -63,32 +64,44 @@ public class Carriage extends SubsystemBase {
       pidcontroller = m_driver.getPIDController();
       initCoefficients();
       setRevPID();
-      setSmartMotion(0);
+      setSmartMotion(PID_SLOT);
 
       initSmartdashboard();
     }
     
-    public void moveToAngle(int angle) {
+    public void moveToAngle(double angle) {
       double setPoint, processVariable;
       boolean mode = SmartDashboard.getBoolean("Mode", false);
-      if(mode) {
-        setPoint = SmartDashboard.getNumber("Set Velocity", 0);
-        pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
-        processVariable = m_encoder.getVelocity();
-      } else {
-        setPoint = SmartDashboard.getNumber("Set Position", 0);
-        /**
-         * As with other PID modes, Smart Motion is set by calling the
-         * setReference method on an existing pid object and setting
-         * the control type to kSmartMotion
-         */
-        pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kSmartMotion);
-        processVariable = m_encoder.getPosition();
+      if(MANUAL) {
+        if(mode) {
+          setPoint = SmartDashboard.getNumber("Set Velocity", 0);
+          pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
+          processVariable = m_encoder.getVelocity();
+        } else {
+          setPoint = SmartDashboard.getNumber("Set Position", 0);
+          /**
+           * As with other PID modes, Smart Motion is set by calling the
+           * setReference method on an existing pid object and setting
+           * the control type to kSmartMotion
+           */
+          pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kSmartMotion);
+          processVariable = m_encoder.getPosition();
+        }
+       } else {
+          if(mode) {
+            setPoint = SmartDashboard.getNumber("Set Velocity", 0);
+            pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
+            processVariable = m_encoder.getVelocity();
+        } else {
+          setPoint = angle;
+          pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kSmartMotion);
+          processVariable = m_encoder.getPosition();
+        }
+
+          SmartDashboard.putNumber("SetPoint", setPoint);
+          SmartDashboard.putNumber("Process Variable", processVariable);
+          SmartDashboard.putNumber("Output", m_driver.getAppliedOutput());
       }
-      
-      SmartDashboard.putNumber("SetPoint", setPoint);
-      SmartDashboard.putNumber("Process Variable", processVariable);
-      SmartDashboard.putNumber("Output", m_driver.getAppliedOutput());
     }
     
     public void brake() {m_brake.set(Value.kForward);}
@@ -102,7 +115,7 @@ public class Carriage extends SubsystemBase {
     public void move(int speed) {}
     
     /**Read PID coefficients from SmartDashboard, change coeffs if changed*/
-    public void updateController() {
+    public void getUpdate(int slot) {
       double p = SmartDashboard.getNumber("P Gain", 0);
       double i = SmartDashboard.getNumber("I Gain", 0);
       double d = SmartDashboard.getNumber("D Gain", 0);
@@ -125,13 +138,13 @@ public class Carriage extends SubsystemBase {
         pidcontroller.setOutputRange(min, max); 
         kMinOutput = min; kMaxOutput = max; 
       }
-      if((maxV != maxVel)) { pidcontroller.setSmartMotionMaxVelocity(maxV,0); maxVel = maxV; }
-      if((minV != minVel)) { pidcontroller.setSmartMotionMinOutputVelocity(minV,0); minVel = minV; }
-      if((maxA != maxAcc)) { pidcontroller.setSmartMotionMaxAccel(maxA,0); maxAcc = maxA; }
-      if((allE != allowedErr)) { pidcontroller.setSmartMotionAllowedClosedLoopError(allE,0); allowedErr = allE; }
+      if((maxV != maxVel)) { pidcontroller.setSmartMotionMaxVelocity(maxV, slot); maxVel = maxV; }
+      if((minV != minVel)) { pidcontroller.setSmartMotionMinOutputVelocity(minV, slot); minVel = minV; }
+      if((maxA != maxAcc)) { pidcontroller.setSmartMotionMaxAccel(maxA, slot); maxAcc = maxA; }
+      if((allE != allowedErr)) { pidcontroller.setSmartMotionAllowedClosedLoopError(allE, slot); allowedErr = allE; }
     }
 
-    private void initCoefficients() {
+    private final void initCoefficients() {
       // PID Coefficients
       kP = P;
       kI = I;
@@ -149,7 +162,7 @@ public class Carriage extends SubsystemBase {
     }
 
     /**set Spark Max PID */
-    private void setRevPID() {   
+    private final void setRevPID() {   
       pidcontroller.setP(kP);
       pidcontroller.setI(kI);
       pidcontroller.setD(kD);
@@ -158,7 +171,7 @@ public class Carriage extends SubsystemBase {
       pidcontroller.setOutputRange(kMinOutput, kMaxOutput);
     }
 
-    private void setSmartMotion(int smartMotionSlot) {
+    private final void setSmartMotion(int smartMotionSlot) {
       int slot = smartMotionSlot;
       pidcontroller.setSmartMotionMaxVelocity(maxVel, slot);
       pidcontroller.setSmartMotionMinOutputVelocity(minVel, slot);
@@ -166,7 +179,7 @@ public class Carriage extends SubsystemBase {
       pidcontroller.setSmartMotionAllowedClosedLoopError(allowedErr, slot);
     }
 
-    private void initSmartdashboard() {
+    private final void initSmartdashboard() {
       // display PID coefficients on SmartDashboard
       SmartDashboard.putNumber("P Gain", kP);
       SmartDashboard.putNumber("I Gain", kI);
@@ -188,7 +201,8 @@ public class Carriage extends SubsystemBase {
       SmartDashboard.putBoolean("Mode", true);
     }
   }
-
+  
+  @SuppressWarnings("unused")
   private static class ProfiledComponent extends TrapezoidProfileSubsystem {
     private static enum Controller {
       WPILib,
@@ -209,9 +223,11 @@ public class Carriage extends SubsystemBase {
     // ArmFeedforward has no api for changing coeffficients, so i rebuild the attribute; hence, the missing 'final' keyword
     private ArmFeedforward feedforward;
 
-
     /**
      * @param encoder_position encoders reset angle position
+     * @param controllerType 1 for {@link Controller.WPILib} and 2 for {@link Controller.SparkMax}.. 
+     * if controllerType is set at 1 motor output will be set to a voltage calculated with a wpilib pid controller and freeforward -coefficients are set at {@link Constants} 
+     * else if controllerType is set at 2 the motor output is set through the Rev API .getPIDController().setReference() on Position mode. 
      * @param constraints [(double) maximum velocity, (double) maximum acceleration]
      */
     public ProfiledComponent(int motor_id, int pneumatic_id, int forward_ch, int rev_ch, int limit_ch, double encoder_position, Controller controllerType, double[] constraints) {
@@ -251,6 +267,8 @@ public class Carriage extends SubsystemBase {
       m_driver.setVoltage(voltage);
     }
 
+    /**@deprecated Use outer classes rotate() factory method instead*/
+    @Deprecated(forRemoval=false)
     public CommandBase moveToGoal(double angle) {
       return this.runOnce(() -> setGoal(angle));
     }
@@ -261,11 +279,11 @@ public class Carriage extends SubsystemBase {
     
     public double position() {return m_encoder.getPosition();}
     
+    public void move(int speed) {}
+    
     public boolean limit() {return m_limit.get();}
     
-    public void move(int speed) {}
-
-    private void initCoefficients() {
+    private final  void initCoefficients() {
       kP = P;
       kI = I;
       kD = D;
@@ -275,7 +293,7 @@ public class Carriage extends SubsystemBase {
       kA = A;
     }
 
-    private void initSmartdashboard() {
+    private final void initSmartdashboard() {
       if (kType == Controller.WPILib) {
       // display PID coefficients on SmartDashboard
       SmartDashboard.putNumber("P Gain", kP);
@@ -293,7 +311,7 @@ public class Carriage extends SubsystemBase {
     }
 
     /**Read PID coefficients from SmartDashboard, change coeffs if changed*/
-    public void updateController() {
+    public void getUpdate() {
       if (kType == Controller.WPILib) {
       double p = SmartDashboard.getNumber("P Gain", 0);
       double i = SmartDashboard.getNumber("I Gain", 0);
@@ -315,8 +333,13 @@ public class Carriage extends SubsystemBase {
   
   private final Component m_arm = new Component(MOTOR_ID_1, PN_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, LIMIT_CH_1, ARM_START);
   private final Component m_wrist = new Component(MOTOR_ID_2, PN_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, LIMIT_CH_2, WRIST_START);
+  //private final ProfiledComponent m_arm = new ProfiledComponent(MOTOR_ID_1, PN_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, LIMIT_CH_1, ARM_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS);
+  //private final ProfiledComponent m_wrist = new ProfiledComponent(MOTOR_ID_2, PN_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, LIMIT_CH_2, WRIST_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS);
+
   public Component wrist() {return this.m_wrist;}
   public Component arm() {return this.m_arm;}
+  //public ProfiledComponent wrist() {return this.m_arm;}
+  //public ProfiledComponent arm() {return this.m_arm;}
 
   /** Creates a new Carriage. */
   public Carriage() {}
@@ -327,12 +350,53 @@ public class Carriage extends SubsystemBase {
     return this.runOnce(() -> component.brake());  
   }
 
-  public CommandBase rotate(int angle, Component component) {
-    return run(() -> component.moveToAngle(angle));
+  public CommandBase brake(ProfiledComponent component) {
+    return this.runOnce(() -> component.brake());  
+  }
+
+  public CommandBase rotate(double angle, Component component) {
+    return this.run(() -> component.moveToAngle(angle));
+  }
+  
+  /**
+   * @param angle Angle to set arm or wrist to.
+   * @param component object of type ProfiledComponent. Use {@link rotate(int angle, Component component)} to use Spark Max Motion Profiling.
+   * @return command.
+   */
+  public CommandBase rotate(double angle, ProfiledComponent component) {
+    return this.run(() -> component.setGoal(angle));
+  }
+
+  /**
+   * @deprecated CONTROLLER TYPE IS NOT CHANGEABLE AT THE MOMENT. Will look into it later.
+   * for time being, use {@link rotate(double angle, ProfiledComponent component)}
+   * 
+   * @param angle Angle to set arm or wrist to.
+   * @param component object of type ProfiledComponent. Use {@link rotate(int angle, Component component)} to use Spark Max Motion Profiling.
+   * @param controllerType 1 for {@link Controller.WPILib} and 2 for {@link Controller.SparkMax}.. 
+   * if controllerType is set at 1 motor output will be set to a voltage calculated with a wpilib pid controller and freeforward -coefficients are set at {@link Constants} 
+   * else if controllerType is set at 2 the motor output is set through the Rev API .getPIDController().setReference() on Position mode. 
+   * @return command.
+   */
+  @Deprecated(forRemoval=false)
+  public CommandBase rotate(double angle, ProfiledComponent component, int controllerType) {
+    return this.run(() -> component.setGoal(angle));
+  }
+
+  public CommandBase update(Component component) {
+    return this.run(() -> component.getUpdate(PID_SLOT));
+  }
+
+  public CommandBase update(ProfiledComponent component) {
+    return this.run(() -> component.getUpdate());
   }
   
   public CommandBase reset(Component component) {
-    return runOnce(() -> component.reset());
+    return this.runOnce(() -> component.reset());
+  }
+
+  public CommandBase reset(ProfiledComponent component) {
+    return this.runOnce(() -> component.reset());
   }
 
   // Conditions ----------------------------------------------

@@ -77,9 +77,11 @@ public class RobotContainer {
     // Drive Base
     // Schedule command to shift gears when the Xbox controller's B button is pressed, cancelling on release.
     m_driverController.b().whileTrue(m_driveBase.shiftGear());
+    m_driverController.a().whileTrue(m_turret.power(0.5));
 
     // Carriage
     m_operatorController.x().onTrue(m_carriage.rotate(90, m_carriage.arm()));
+    m_driverController.y().whileTrue(m_carriage.update(m_carriage.arm()).alongWith(m_carriage.rotate(12, m_carriage.arm())));
 
     // Gripper
     m_operatorController.leftTrigger().onTrue(m_gripper.grip());

@@ -66,5 +66,9 @@ public class Turret extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  public CommandBase power(double speed) {
+    return this.startEnd(() -> m_driver.set(speed), () -> m_driver.set(0));
+  }
+
   public CommandBase test() {return startEnd(() -> System.out.println(m_encoder.getPosition()), () -> System.out.println(m_encoder.getPosition()));}
 }

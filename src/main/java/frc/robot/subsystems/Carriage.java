@@ -117,7 +117,7 @@ public class Carriage extends SubsystemBase {
 
     //public boolean limit() {return m_limit.get();}
     
-    public void move(int speed) {}
+    public void move(int speed) {m_driver.set(speed);}
     
     /**Read PID coefficients from SmartDashboard, change coeffs if changed*/
     public void getUpdate(int slot) {
@@ -147,6 +147,7 @@ public class Carriage extends SubsystemBase {
       if((minV != minVel)) { pidcontroller.setSmartMotionMinOutputVelocity(minV, slot); minVel = minV; }
       if((maxA != maxAcc)) { pidcontroller.setSmartMotionMaxAccel(maxA, slot); maxAcc = maxA; }
       if((allE != allowedErr)) { pidcontroller.setSmartMotionAllowedClosedLoopError(allE, slot); allowedErr = allE; }
+      m_driver.burnFlash();
     }
 
     private final void initCoefficients() {
@@ -174,6 +175,7 @@ public class Carriage extends SubsystemBase {
       pidcontroller.setIZone(kIz);
       pidcontroller.setFF(kFF);
       pidcontroller.setOutputRange(kMinOutput, kMaxOutput);
+      m_driver.burnFlash();
     }
 
     private final void setSmartMotion(int smartMotionSlot) {
@@ -182,6 +184,7 @@ public class Carriage extends SubsystemBase {
       pidcontroller.setSmartMotionMinOutputVelocity(minVel, slot);
       pidcontroller.setSmartMotionMaxAccel(maxAcc, slot);
       pidcontroller.setSmartMotionAllowedClosedLoopError(allowedErr, slot);
+      m_driver.burnFlash();
     }
 
     private final void initSmartdashboard() {
@@ -286,7 +289,7 @@ public class Carriage extends SubsystemBase {
     
     public double position() {return m_encoder.getPosition();}
     
-    public void move(int speed) {}
+    public void move(int speed) {m_driver.set(speed);}
 
     //public boolean limit() {return m_limit.get();}
 
@@ -364,7 +367,7 @@ public class Carriage extends SubsystemBase {
   }
 
   public CommandBase rotate(double angle, Component component) {
-    return this.run(() -> component.moveToAngle(angle));
+    return this.runEnd(() -> component.moveToAngle(angle), () -> component.move(0));
   }
   
   /**
@@ -373,7 +376,7 @@ public class Carriage extends SubsystemBase {
    * @return command.
    */
   public CommandBase rotate(double angle, ProfiledComponent component) {
-    return this.run(() -> component.setGoal(angle));
+    return this.runEnd(() -> component.setGoal(angle), () -> component.move(0));
   }
 
   /**

@@ -33,7 +33,7 @@ public class Carriage extends SubsystemBase {
     private final CANSparkMax m_driver;
     private final RelativeEncoder m_encoder;
     private final DoubleSolenoid m_brake;
-    private final DigitalInput m_limit;
+    //private final DigitalInput m_limit;
     private final SparkMaxLimitSwitch m_driverLimit;
     
     private final SparkMaxPIDController pidcontroller;
@@ -45,13 +45,14 @@ public class Carriage extends SubsystemBase {
      * 
      * smart dashboard sorun çıkartırsa buraya 'name' isimli string parametre al smartdashboard keylerine String.format("%s/...", name) kullan.
      */
-    public Component(int motor_id, int pneumatic_id, int forward_ch, int rev_ch, int limit_ch, double encoder_position) {
+    public Component(int motor_id, int forward_ch, int rev_ch, double encoder_position) {
       kPos = encoder_position;
       
       m_driver = new CANSparkMax(motor_id, MotorType.kBrushless);
-      m_brake = new DoubleSolenoid(pneumatic_id, MODULE_TYPE, forward_ch, rev_ch);
-      m_limit = new DigitalInput(limit_ch);
-      m_driverLimit = m_driver.getForwardLimitSwitch(com.revrobotics.SparkMaxLimitSwitch.Type.kNormallyClosed);
+      m_brake = new DoubleSolenoid(PN_ID, MODULE_TYPE, forward_ch, rev_ch);
+      //m_limit = new DigitalInput(LIMIT_CH);
+      m_driverLimit = m_driver.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed);
+      // Research SparkMaxLimitSwitch.enable
       
       
       // Encoder
@@ -112,7 +113,9 @@ public class Carriage extends SubsystemBase {
     
     public double position() {return m_encoder.getPosition();}
     
-    public boolean limit() {return m_limit.get();}
+    public boolean limit() {return m_driverLimit.isPressed();}
+
+    //public boolean limit() {return m_limit.get();}
     
     public void move(int speed) {}
     
@@ -218,7 +221,7 @@ public class Carriage extends SubsystemBase {
     private final CANSparkMax m_driver;
     private final RelativeEncoder m_encoder;
     private final DoubleSolenoid m_brake;
-    private final DigitalInput m_limit;
+    //private final DigitalInput m_limit;
 
     // Controllers
     private final PIDController pidcontroller;
@@ -232,14 +235,14 @@ public class Carriage extends SubsystemBase {
      * else if controllerType is set at 2 the motor output is set through the Rev API .getPIDController().setReference() on Position mode. 
      * @param constraints [(double) maximum velocity, (double) maximum acceleration]
      */
-    public ProfiledComponent(int motor_id, int pneumatic_id, int forward_ch, int rev_ch, int limit_ch, double encoder_position, Controller controllerType, double[] constraints) {
+    public ProfiledComponent(int motor_id, int forward_ch, int rev_ch, double encoder_position, Controller controllerType, double[] constraints) {
       super(new TrapezoidProfile.Constraints(constraints[0], constraints[1]), encoder_position);
       kPos = encoder_position;
       kType = controllerType;
       
       m_driver = new CANSparkMax(motor_id, MotorType.kBrushless);
-      m_brake = new DoubleSolenoid(pneumatic_id, MODULE_TYPE, forward_ch, rev_ch);
-      m_limit = new DigitalInput(limit_ch);
+      m_brake = new DoubleSolenoid(PN_ID, MODULE_TYPE, forward_ch, rev_ch);
+      //m_limit = new DigitalInput(LIMIT_CH);
 
       initCoefficients();
       feedforward = new ArmFeedforward(S, G, V, A);
@@ -284,8 +287,10 @@ public class Carriage extends SubsystemBase {
     public double position() {return m_encoder.getPosition();}
     
     public void move(int speed) {}
-    
-    public boolean limit() {return m_limit.get();}
+
+    //public boolean limit() {return m_limit.get();}
+
+    public boolean limit() {return m_driver.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed).isPressed();}
     
     private final  void initCoefficients() {
       kP = P;
@@ -335,8 +340,8 @@ public class Carriage extends SubsystemBase {
     }
   }
   
-  private final Component m_arm = new Component(MOTOR_ID_1, PN_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, LIMIT_CH_1, ARM_START);
-  private final Component m_wrist = new Component(MOTOR_ID_2, PN_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, LIMIT_CH_2, WRIST_START);
+  private final Component m_arm = new Component(MOTOR_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, ARM_START);
+  private final Component m_wrist = new Component(MOTOR_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, WRIST_START);
   //private final ProfiledComponent m_arm = new ProfiledComponent(MOTOR_ID_1, PN_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, LIMIT_CH_1, ARM_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS);
   //private final ProfiledComponent m_wrist = new ProfiledComponent(MOTOR_ID_2, PN_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, LIMIT_CH_2, WRIST_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS);
 

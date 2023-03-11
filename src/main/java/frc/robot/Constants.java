@@ -22,6 +22,12 @@ public final class Constants {
 
     public static final boolean OPERATING = false;
   }
+  public static class CAN {
+    public static final int PDH_ID = 1;
+    public static final int REVPH = 1;
+    public static final int[] SPARK = {2, 5, 6, 7, 3, 4};
+    public static final int[] VICTOR = {8, 9, 10, 11, 12, 13};
+  }
   public static class DriveBaseConstants {
     // Mathematics
     public static final double SPEED = 10.0;  // meters per second
@@ -30,12 +36,12 @@ public final class Constants {
     public static final double WHEEL_RADIUS = 0.07; // meters
 
     // Motor Ports
-    public static final int MOTOR_PORT_1 = 0;
-    public static final int MOTOR_PORT_2 = 1;
-    public static final int MOTOR_PORT_3 = 2;
-    public static final int MOTOR_PORT_4 = 3;
-    public static final int MOTOR_PORT_5 = 4;
-    public static final int MOTOR_PORT_6 = 5;
+    public static final int MOTOR_PORT_1 = CAN.VICTOR[0];
+    public static final int MOTOR_PORT_2 = CAN.VICTOR[1];
+    public static final int MOTOR_PORT_3 = CAN.VICTOR[2];
+    public static final int MOTOR_PORT_4 = CAN.VICTOR[3];
+    public static final int MOTOR_PORT_5 = CAN.VICTOR[4];
+    public static final int MOTOR_PORT_6 = CAN.VICTOR[5];
         
     // Encoders
     public static final int LEFT_ENCODER_PORT_A = 0;
@@ -48,20 +54,20 @@ public final class Constants {
     public static final boolean RIGHT_MOTORS_REVERSED = true;
 
     // Switches
-    public static final int LIMIT_CH = 0;
+    public static final int LIMIT_CH = 4;
     
     public static final double ENCODER_RESOLUTION = 400; // 1X
     public static final double DISTANCE_PER_PULSE = 2 * Math.PI * WHEEL_RADIUS / ENCODER_RESOLUTION;
 
     // Pneumatics
     public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.REVPH;
-    public static final int PN_ID = 0;
+    public static final int PN_ID = CAN.REVPH;
     public static final int FORWARD_CHANNEL = 0;
     public static final int REVERSE_CHANNEL = 1;
   }
   public static class TurretConstants {
-    public static final int MOTOR_ID = 5;
-    public static final int LIMIT_CH = 1;
+    public static final int MOTOR_ID = CAN.SPARK[0];
+    public static final int LIMIT_CH = 5;
     
     public static final double GEAR_RATE = 60.0/14.0*48.0/20.0*200.0/24.0;
     //public static final double ENCODER_RESOLUTION = 42;
@@ -99,9 +105,9 @@ public final class Constants {
     public static final double GEAR_RATE = (50.0/14.0)*(48.0/16.0);
     public static final double GEAR_RADIUS = .0035/2.0;
     
-    public static final int MOTOR_ID = 4;
-    public static final int LIMIT_CH_1 = 2;
-    public static final int LIMIT_CH_2 = 3;
+    public static final int MOTOR_ID = CAN.SPARK[1];
+    public static final int LIMIT_CH_1 = 6;
+    public static final int LIMIT_CH_2 = 7;
     
     //public static final double ENCODER_RESOLUTION = 42;
     public static final double ENCODER_CPR = 42;
@@ -120,21 +126,17 @@ public final class Constants {
     // SET
     public static final double WRIST_START = 0.0;
     public static final double ARM_START = 0.0;
-    
-    public static final int LIMIT_CH_1 = 4;
-    public static final int LIMIT_CH_2 = 5;
 
     //public static final double DISTANCE_PER_PULSE = 360. / (GEAR_RATE * ENCODER_RESOLUTION);
     public static final double DISTANCE_PER_COUNT = 360. / (GEAR_RATE * ENCODER_CPR);
     public static final double DISTANCE_PER_REV = 360. / GEAR_RATE;
     
-    public static final int MOTOR_ID_1 = 1;
-    public static final int MOTOR_ID_2 = 6;
+    public static final int MOTOR_ID_1 = CAN.SPARK[2];
+    public static final int MOTOR_ID_2 = CAN.SPARK[3];
     
     // Pneumatics
     public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.REVPH;
-    public static final int PN_ID_1 = 1;
-    public static final int PN_ID_2 = 2;
+    public static final int PN_ID = CAN.REVPH;
     public static final int FORWARD_CHANNEL_1 = 2;
     public static final int REVERSE_CHANNEL_1 = 3;
     public static final int FORWARD_CHANNEL_2 = 4;
@@ -168,15 +170,15 @@ public final class Constants {
   }
   public static class GripperConstants {
     // Motors
-    public static final int MOTOR_ID_1 = 2;
-    public static final int MOTOR_ID_2 = 3;
+    public static final int MOTOR_ID_1 = CAN.SPARK[4];
+    public static final int MOTOR_ID_2 = CAN.SPARK[5];
 
     public static final double INTAKE_SPEED = 0.5;
     public static final double SHOOTER_SPEED = 0.3;
     
     // Pneumatics
     public static final PneumaticsModuleType MODULE_TYPE = PneumaticsModuleType.REVPH;
-    public static final int PN_ID = 3;
+    public static final int PN_ID = CAN.REVPH;
     public static final int FORWARD_CHANNEL = 6;
     public static final int REVERSE_CHANNEL = 7;
   }

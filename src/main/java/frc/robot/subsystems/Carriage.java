@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -109,6 +110,8 @@ public class Carriage extends SubsystemBase {
 
     public void coast() {m_brake.set(Value.kReverse);}    
     
+    public boolean brakeState() {if (m_brake.get() == Value.kForward) {return true;} return false;}
+
     public void reset() {m_encoder.setPosition(kPos);}
     
     public double position() {return m_encoder.getPosition();}
@@ -284,6 +287,8 @@ public class Carriage extends SubsystemBase {
     public void brake() {m_brake.set(Value.kForward);}
    
     public void coast() {m_brake.set(Value.kReverse);} 
+
+    public boolean brakeState() {if (m_brake.get() == Value.kForward) {return true;} return false;}
     
     public void reset() {m_encoder.setPosition(kPos);}
     
@@ -352,9 +357,27 @@ public class Carriage extends SubsystemBase {
   public Component arm() {return this.m_arm;}
   //public ProfiledComponent wrist() {return this.m_arm;}
   //public ProfiledComponent arm() {return this.m_arm;}
-
+  
   /** Creates a new Carriage. */
   public Carriage() {}
+  
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+    update();
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
+    builder.addBooleanProperty("Arms Pneumatic Brake", () -> m_arm.brakeState(), null);
+    builder.addBooleanProperty("Wrist Pneumatic Brake", () -> m_wrist.brakeState(), null);
+  }
+  
+  private void update() {
+    m_arm.getUpdate(PID_SLOT);
+    m_wrist.getUpdate(PID_SLOT);
+  }
 
   // Command factories ---------------------------------------
 
@@ -437,9 +460,4 @@ public class Carriage extends SubsystemBase {
 
   // TEST
   public CommandBase test() {return startEnd(() -> System.out.println(m_arm.limit()), () -> System.out.println(m_wrist.limit()));}
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
 }

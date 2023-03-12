@@ -11,6 +11,7 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,11 +29,10 @@ public class Turret extends SubsystemBase {
   private final SparkMaxPIDController pidcontroller = m_driver.getPIDController();
   // Limit switch
   private final DigitalInput m_limit = new DigitalInput(LIMIT_CH);
-  private final SparkMaxLimitSwitch m_driverLimit = m_driver.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed);
 
   /** Creates a new Turret. */
   public Turret() {
-    m_encoder.setPositionConversionFactor(DISTANCE_PER_COUNT);
+    m_encoder.setPositionConversionFactor(DISTANCE_PER_REV);
     this.reset();
   }
 
@@ -66,8 +66,44 @@ public class Turret extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
+    builder.addBooleanProperty("Turret Limit Switch",  m_limit::get, null);;
+  }
+
   public CommandBase power(double speed) {
     return this.startEnd(() -> m_driver.set(speed), () -> m_driver.set(0));
+  }
+
+  /**
+   * In-line brake command factory
+   * (I am thinking of maybe instead of a seperated command i can incorporate this into the lift command)
+   */
+  public CommandBase brake() {
+    return this.runOnce(() -> m_driver.stopMotor());
+  }
+  
+  /**
+   * Condition method
+   * 
+   * @return True if lift is in motion, false if stationary.
+   */
+  public boolean motion() {
+    if (m_driver.get() != 0) {return true;}
+    return false;
+  }
+
+  /**
+   * Condition method.
+   * Panic if limit switch is hit.
+   * Used for the brake.
+   * 
+   * @return True for panic, false for OK.
+   */
+  public boolean limit() {
+    if(m_limit.get()) {return true;}
+    return false;
   }
 
   public CommandBase test() {return startEnd(() -> System.out.println(m_encoder.getPosition()), () -> System.out.println(m_encoder.getPosition()));}

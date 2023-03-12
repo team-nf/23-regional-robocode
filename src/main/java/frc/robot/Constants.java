@@ -29,6 +29,17 @@ public final class Constants {
     public static final int[] VICTOR = {8, 9, 10, 11, 12, 13};
   }
   public static enum PIDCoefficients {
+    DriveBase(
+      0,
+      1,
+      0,
+      0,
+      0,
+      0.5,
+      1,
+      -1,
+      330
+    ),
     Arm(
     0,
     3,
@@ -61,6 +72,25 @@ public final class Constants {
     180, // rpm
     -180,
     10, 
+    5,
+    1,
+    1,
+    0.5,
+    0.1
+    ),
+    Turret(
+    0,
+    5e-5,
+    1e-6,
+    0, 
+    0, 
+    0.000156, 
+    1, 
+    -1,
+    330,
+    330, // rpm
+    -330,
+    12,
     5,
     1,
     1,
@@ -133,6 +163,7 @@ public final class Constants {
     public static final double MAX_ANGULAR_VELOCITY = 2 * Math.PI; // one rotation per second
     public static final double TRACK_WIDTH = 0.605; // meters
     public static final double WHEEL_RADIUS = 0.07; // meters
+    public static final PIDCoefficients PID = PIDCoefficients.DriveBase;
 
     // Motor Ports
     public static final int MOTOR_PORT_1 = CAN.VICTOR[0];
@@ -177,26 +208,7 @@ public final class Constants {
     public static final double DISTANCE_PER_COUNT = 360. / (GEAR_RATE * ENCODER_CPR);
     public static final double DISTANCE_PER_REV = 360. / GEAR_RATE;
 
-    // PID Coefficients
-    public static final int PID_SLOT = 0;
-    public static final double P = 5e-5;
-    public static final double I = 1e-6;
-    public static final double D = 0; 
-    public static final double IZ = 0; 
-    public static final double FF = 0.000156; 
-    public static final double MAX_OUTPUT = 1; 
-    public static final double MIN_OUTPUT = -1;
-    public static final double MAX_RPM = 330; 
-    // Smart Motion Coefficients
-    public static final double MAX_VEL = 330; // rpm
-    public static final double MIN_VEL = -330;
-    public static final double MAX_ACC = 12; 
-    public static final double ALLOWED_ERR = 5;
-    // Feedforward Coefficients
-    public static final double S = 1;
-    public static final double G = 1;
-    public static final double V = 0.5;
-    public static final double A = 0.1;
+    public static final PIDCoefficients COEFF = PIDCoefficients.Turret;
 
     public static final boolean MANUAL = OperatorConstants.OPERATING;
   }

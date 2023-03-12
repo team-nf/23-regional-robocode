@@ -42,19 +42,19 @@ public class Turret extends SubsystemBase {
 
   private final void initCoefficients() {
     // PID Coefficients
-    kP = P;
-    kI = I;
-    kD = D;
-    kIz = IZ;
-    kFF = FF;
-    kMinOutput = MIN_OUTPUT;
-    kMaxOutput = MAX_OUTPUT;
+    kP = COEFF.P;
+    kI = COEFF.I;
+    kD = COEFF.D;
+    kIz = COEFF.IZ;
+    kFF = COEFF.FF;
+    kMinOutput = COEFF.MIN_OUTPUT;
+    kMaxOutput = COEFF.MAX_OUTPUT;
     // Smart Motion
-    minVel = MIN_VEL;
-    maxVel = MAX_VEL;
-    maxAcc = MAX_ACC;
-    maxRPM = MAX_RPM;
-    allowedErr = ALLOWED_ERR;
+    minVel = COEFF.MIN_VEL;
+    maxVel = COEFF.MAX_VEL;
+    maxAcc = COEFF.MAX_ACC;
+    maxRPM = COEFF.MAX_RPM;
+    allowedErr = COEFF.ALLOWED_ERR;
   }
 
   private final void setPID() {
@@ -100,6 +100,14 @@ public class Turret extends SubsystemBase {
   public boolean limit() {
     if(m_limit.get()) {return true;}
     return false;
+  }
+
+  /**
+   * @return true if motor is free to spin.
+   */
+  public boolean ok() {
+    if(m_limit.get()) {return false;}
+    return true;
   }
 
   public CommandBase test() {return startEnd(() -> System.out.println(m_encoder.getPosition()), () -> System.out.println(m_encoder.getPosition()));}

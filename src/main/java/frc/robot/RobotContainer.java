@@ -65,11 +65,13 @@ public class RobotContainer {
     // Drive Base
     // Schedule command to shift gear back to default when condition changes to `true` -when not moving and shifter is not default-
     new Trigger(m_driveBase::motion).negate().and(m_driveBase::shifterCondition).onTrue(m_driveBase.shiftGear());
+    
+    // Turret
+    new Trigger(m_turret::limit).onTrue(m_turret.brake());
 
     // Lift
     // Schedule brake command when boths conditions are true -lift is not in motion and switch is hit-
     new Trigger(m_lift::panicCondition).and(m_lift::motion).onTrue(m_lift.brake());
-    new Trigger(m_turret::limit).onTrue(m_turret.brake());
 
     // Carriage
     new Trigger(m_carriage::armLimit).onTrue(m_carriage.reset(m_carriage.arm()));
@@ -78,11 +80,12 @@ public class RobotContainer {
     // Drive Base
     // Schedule command to shift gears when the Xbox controller's B button is pressed, cancelling on release.
     m_driverController.b().whileTrue(m_driveBase.shiftGear());
-    m_driverController.a().whileTrue(m_turret.power(0.5));
+
+    // Turret
+    m_operatorController.a().and(m_turret::ok).whileTrue(m_turret.power(0.5));
 
     // Carriage
     m_operatorController.x().onTrue(m_carriage.rotate(90, m_carriage.arm()));
-    m_driverController.y().whileTrue(m_carriage.update(m_carriage.arm()).alongWith(m_carriage.rotate(12, m_carriage.arm())));
 
     // Gripper
     m_operatorController.leftTrigger().onTrue(m_gripper.grip());

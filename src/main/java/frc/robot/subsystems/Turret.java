@@ -75,11 +75,7 @@ public class Turret extends SubsystemBase {
   public CommandBase power(double speed) {
     return this.startEnd(() -> m_driver.set(speed), () -> m_driver.set(0));
   }
-
-  /**
-   * In-line brake command factory
-   * (I am thinking of maybe instead of a seperated command i can incorporate this into the lift command)
-   */
+ 
   public CommandBase brake() {
     return this.runOnce(() -> m_driver.stopMotor());
   }

@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
+import frc.robot.Constants.CarriageConstants;
+import frc.robot.Constants.PIDCoefficients;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.CANSparkMax;
@@ -46,7 +48,7 @@ public class Carriage extends SubsystemBase {
      * 
      * smart dashboard sorun çıkartırsa buraya 'name' isimli string parametre al smartdashboard keylerine String.format("%s/...", name) kullan.
      */
-    public Component(int motor_id, int forward_ch, int rev_ch, double encoder_position) {
+    public Component(int motor_id, int forward_ch, int rev_ch, double encoder_position, PIDCoefficients coefficients) {
       kPos = encoder_position;
       
       m_driver = new CANSparkMax(motor_id, MotorType.kBrushless);
@@ -64,9 +66,9 @@ public class Carriage extends SubsystemBase {
       // PID
       // Spark Max PID Controller
       pidcontroller = m_driver.getPIDController();
-      initCoefficients();
+      initCoefficients(coefficients);
       setRevPID();
-      setSmartMotion(PID_SLOT);
+      setSmartMotion(coefficients.PID_SLOT);
 
       initSmartdashboard();
     }
@@ -153,21 +155,21 @@ public class Carriage extends SubsystemBase {
       m_driver.burnFlash();
     }
 
-    private final void initCoefficients() {
+    private final void initCoefficients(PIDCoefficients k) {
       // PID Coefficients
-      kP = P;
-      kI = I;
-      kD = D;
-      kIz = IZ;
-      kFF = FF;
-      kMinOutput = MIN_OUTPUT;
-      kMaxOutput = MAX_OUTPUT;
+      kP = k.P;
+      kI = k.I;
+      kD = k.D;
+      kIz = k.IZ;
+      kFF = k.FF;
+      kMinOutput = k.MIN_OUTPUT;
+      kMaxOutput = k.MAX_OUTPUT;
       // Smart Motion
-      minVel = MIN_VEL;
-      maxVel = MAX_VEL;
-      maxAcc = MAX_ACC;
-      maxRPM = MAX_RPM;
-      allowedErr = ALLOWED_ERR;
+      minVel = k.MIN_VEL;
+      maxVel = k.MAX_VEL;
+      maxAcc = k.MAX_ACC;
+      maxRPM = k.MAX_RPM;
+      allowedErr = k.ALLOWED_ERR;
     }
 
     /**set Spark Max PID */
@@ -240,8 +242,9 @@ public class Carriage extends SubsystemBase {
      * if controllerType is set at 1 motor output will be set to a voltage calculated with a wpilib pid controller and freeforward -coefficients are set at {@link Constants} 
      * else if controllerType is set at 2 the motor output is set through the Rev API .getPIDController().setReference() on Position mode. 
      * @param constraints [(double) maximum velocity, (double) maximum acceleration]
+     * @param k PID COEFFICIENTS. should be type enum {@link frc.robot.Constants.PIDCoefficients} in Constants. The enum in constants is where the values are set.
      */
-    public ProfiledComponent(int motor_id, int forward_ch, int rev_ch, double encoder_position, Controller controllerType, double[] constraints) {
+    public ProfiledComponent(int motor_id, int forward_ch, int rev_ch, double encoder_position, Controller controllerType, double[] constraints, frc.robot.Constants.PIDCoefficients k) {
       super(new TrapezoidProfile.Constraints(constraints[0], constraints[1]), encoder_position);
       kPos = encoder_position;
       kType = controllerType;
@@ -250,9 +253,9 @@ public class Carriage extends SubsystemBase {
       m_brake = new DoubleSolenoid(PN_ID, MODULE_TYPE, forward_ch, rev_ch);
       //m_limit = new DigitalInput(LIMIT_CH);
 
-      initCoefficients();
-      feedforward = new ArmFeedforward(S, G, V, A);
-      pidcontroller = new PIDController(P, I, D);
+      initCoefficients(k);
+      feedforward = new ArmFeedforward(k.S, k.G, k.V, k.A);
+      pidcontroller = new PIDController(k.P, k.I, k.D);
       
       // Encoder
       m_encoder = m_driver.getEncoder(Type.kHallSensor, (int)(ENCODER_CPR));
@@ -300,14 +303,14 @@ public class Carriage extends SubsystemBase {
 
     public boolean limit() {return m_driver.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed).isPressed();}
     
-    private final  void initCoefficients() {
-      kP = P;
-      kI = I;
-      kD = D;
-      kS = S;
-      kG = G;
-      kV = V;
-      kA = A;
+    private final  void initCoefficients(PIDCoefficients k) {
+      kP = k.P;
+      kI = k.I;
+      kD = k.D;
+      kS = k.S;
+      kG = k.G;
+      kV = k.V;
+      kA = k.A;
     }
 
     private final void initSmartdashboard() {
@@ -348,9 +351,9 @@ public class Carriage extends SubsystemBase {
     }
   }
   
-  private final Component m_arm = new Component(MOTOR_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, ARM_START);
-  private final Component m_wrist = new Component(MOTOR_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, WRIST_START);
-  //private final ProfiledComponent m_arm = new ProfiledComponent(MOTOR_ID_1, PN_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, LIMIT_CH_1, ARM_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS);
+  private final Component m_arm = new Component(MOTOR_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, ARM_START, ARM_PID);
+  private final Component m_wrist = new Component(MOTOR_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, WRIST_START, WRIST_PID);
+  //private final ProfiledComponent m_arm = new ProfiledComponent(MOTOR_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1,  ARM_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS, frc.robot.Constants.CarriageConstants.Component.Arm);
   //private final ProfiledComponent m_wrist = new ProfiledComponent(MOTOR_ID_2, PN_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, LIMIT_CH_2, WRIST_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS);
 
   public Component wrist() {return this.m_wrist;}
@@ -375,8 +378,8 @@ public class Carriage extends SubsystemBase {
   }
   
   private void update() {
-    m_arm.getUpdate(PID_SLOT);
-    m_wrist.getUpdate(PID_SLOT);
+    m_arm.getUpdate(ARM_PID.PID_SLOT);
+    m_wrist.getUpdate(WRIST_PID.PID_SLOT);
   }
 
   // Command factories ---------------------------------------
@@ -419,7 +422,7 @@ public class Carriage extends SubsystemBase {
   }
 
   public CommandBase update(Component component) {
-    return this.run(() -> component.getUpdate(PID_SLOT));
+    return this.run(() -> component.getUpdate(0));
   }
 
   public CommandBase update(ProfiledComponent component) {

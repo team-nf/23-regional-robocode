@@ -28,6 +28,105 @@ public final class Constants {
     public static final int[] SPARK = {2, 5, 6, 7, 3, 4};
     public static final int[] VICTOR = {8, 9, 10, 11, 12, 13};
   }
+  public static enum PIDCoefficients {
+    Arm(
+    0,
+    3,
+    1e-2,
+    0.5, 
+    0, 
+    0.000156, 
+    1, 
+    -1,
+    240, 
+    180, // rpm
+    -180,
+    10, 
+    5,
+    1,
+    1,
+    0.5,
+    0.1
+    ),
+    Wrist(
+    0,
+    3,
+    1e-2,
+    0.5, 
+    0, 
+    0.000156, 
+    1, 
+    -1,
+    240, 
+    180, // rpm
+    -180,
+    10, 
+    5,
+    1,
+    1,
+    0.5,
+    0.1
+    );
+    public final int PID_SLOT;
+    public final double P, I, D, IZ, FF, MAX_OUTPUT, MIN_OUTPUT, MAX_RPM, MAX_VEL, MIN_VEL, MAX_ACC, ALLOWED_ERR, S, G, V, A; 
+    private PIDCoefficients(int slot, double p, double i, double d, double iz, double ff, double max_out, double min_out, double rpm) {
+      this.PID_SLOT = slot;
+      this.P = p;
+      this.I = i;
+      this.D = d;
+      this.IZ = iz;
+      this.FF = ff;
+      this.MAX_OUTPUT = max_out;
+      this.MIN_OUTPUT = min_out;
+      this.MAX_RPM = rpm;
+      this.MAX_VEL = 0;
+      this.MIN_VEL = 0;
+      this.MAX_ACC = 0;
+      this.ALLOWED_ERR = 0;
+      this.S = 0;
+      this.G = 0;
+      this.V = 0;
+      this.A = 0;
+    }
+    private PIDCoefficients(int slot, double p, double i, double d, double iz, double ff, double max_out, double min_out, double rpm, double max_vel, double min_vel, double acc, double err){
+      this.PID_SLOT = slot;
+      this.P = p;
+      this.I = i;
+      this.D = d;
+      this.IZ = iz;
+      this.FF = ff;
+      this.MAX_OUTPUT = max_out;
+      this.MIN_OUTPUT = min_out;
+      this.MAX_RPM = rpm;
+      this.MAX_VEL = max_vel;
+      this.MIN_VEL = min_vel;
+      this.MAX_ACC = acc;
+      this.ALLOWED_ERR = err;
+      this.S = 0;
+      this.G = 0;
+      this.V = 0;
+      this.A = 0;
+    }
+    private PIDCoefficients(int slot, double p, double i, double d, double iz, double ff, double max_out, double min_out, double rpm, double max_vel, double min_vel, double acc, double err, double s, double g, double v, double a){
+      this.PID_SLOT = slot;
+      this.P = p;
+      this.I = i;
+      this.D = d;
+      this.IZ = iz;
+      this.FF = ff;
+      this.MAX_OUTPUT = max_out;
+      this.MIN_OUTPUT = min_out;
+      this.MAX_RPM = rpm;
+      this.MAX_VEL = max_vel;
+      this.MIN_VEL = min_vel;
+      this.MAX_ACC = acc;
+      this.ALLOWED_ERR = err;
+      this.S = s;
+      this.G = g;
+      this.V = v;
+      this.A = a;
+    }
+  }
   public static class DriveBaseConstants {
     // Mathematics
     public static final double SPEED = 10.0;  // meters per second
@@ -141,28 +240,10 @@ public final class Constants {
     public static final int REVERSE_CHANNEL_1 = 3;
     public static final int FORWARD_CHANNEL_2 = 4;
     public static final int REVERSE_CHANNEL_2 = 5;
-    
-    // PID Coefficients
-    public static final int PID_SLOT = 0;
-    public static final double P = 5e-5;
-    public static final double I = 1e-6;
-    public static final double D = 0; 
-    public static final double IZ = 0; 
-    public static final double FF = 0.000156; 
-    public static final double MAX_OUTPUT = 1; 
-    public static final double MIN_OUTPUT = -1;
-    public static final double MAX_RPM = 240; 
-    // Smart Motion Coefficients
-    public static final double MAX_VEL = 180; // rpm
-    public static final double MIN_VEL = -180;
-    public static final double MAX_ACC = 10; 
-    public static final double ALLOWED_ERR = 5;
-    // Feedforward Coefficients
-    public static final double S = 1;
-    public static final double G = 1;
-    public static final double V = 0.5;
-    public static final double A = 0.1;
 
+    // PID Coefficients
+    public static final PIDCoefficients ARM_PID = PIDCoefficients.Arm;
+    public static final PIDCoefficients WRIST_PID = PIDCoefficients.Wrist;
     public static final boolean MANUAL = OperatorConstants.OPERATING;
 
     // Max Velocity Degrees Per Second, Max Acceleration Degrees Per Second Squared

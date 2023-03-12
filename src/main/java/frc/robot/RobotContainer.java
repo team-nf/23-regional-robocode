@@ -69,6 +69,7 @@ public class RobotContainer {
     // Lift
     // Schedule brake command when boths conditions are true -lift is not in motion and switch is hit-
     new Trigger(m_lift::panicCondition).and(m_lift::motion).onTrue(m_lift.brake());
+    new Trigger(m_turret::limit).onTrue(m_turret.brake());
 
     // Carriage
     new Trigger(m_carriage::armLimit).onTrue(m_carriage.reset(m_carriage.arm()));

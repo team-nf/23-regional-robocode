@@ -1,0 +1,11 @@
+Use pneumatic brakes at the carriage.
+Write command that uses a pid controller and perhaps profiling to control the turret. Do not forget about the limit switch(s)
+Tune all pid coefficients etc.
+Do I need a control system or profiling for the gripper?
+Different drive modes? Drive with singe joystick , double joysticks.. ??
+Lift movement.
+Smart Dashboard updates, entries, setters for tuning... Configuration saver function?
+Arm movement.
+Wrist movement.
+Autonomous.
+testing functions, commands.

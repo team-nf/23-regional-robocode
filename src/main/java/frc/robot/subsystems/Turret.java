@@ -15,6 +15,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import static frc.robot.Constants.TurretConstants.*;
 
@@ -34,12 +35,17 @@ public class Turret extends SubsystemBase {
   public Turret() {
     m_encoder.setPositionConversionFactor(DISTANCE_PER_REV);
     this.reset();
+    initCoefficients();
   }
-
+  
+  public double position() {
+    return m_driver.getEncoder().getPosition();
+  }
+  
   public final void reset() {
     m_encoder.setPosition(ENCODER_START);
   }
-
+  
   private final void initCoefficients() {
     // PID Coefficients
     kP = COEFF.P;
@@ -59,6 +65,14 @@ public class Turret extends SubsystemBase {
 
   private final void setPID() {
     pidcontroller.setP(kP);
+    pidcontroller.setI(kI);
+    pidcontroller.setD(kD);
+    pidcontroller.setIZone(kIz);
+    pidcontroller.setFF(kFF);
+    pidcontroller.setSmartMotionMaxVelocity(maxVel, COEFF.PID_SLOT);
+    pidcontroller.setSmartMotionMinOutputVelocity(minVel, COEFF.PID_SLOT);
+    pidcontroller.setSmartMotionMaxAccel(maxAcc, COEFF.PID_SLOT);
+    pidcontroller.setSmartMotionAllowedClosedLoopError(allowedErr, COEFF.PID_SLOT);
   }
 
   @Override

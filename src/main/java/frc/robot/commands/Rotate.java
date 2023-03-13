@@ -5,20 +5,53 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Turret;
 
-public class RotateTurret extends CommandBase {
+public class Rotate extends CommandBase {
   /** Creates a new RotateTurret. */
-  public RotateTurret() {
+  private final Turret m_turret;
+  public Rotate(Turret turret) {
     // Use addRequirements() here to declare subsystem dependencies.
+    m_turret = turret;
+    addRequirements(m_turret);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    // SmartDashboard
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    if (m_turret.limit()) {
+      if (m_turret.position() < 0) {
+
+      }
+      else if (m_turret.position() > 0) {
+
+      }
+    }
+    else {
+
+    }
+  }
+
+  /**
+   * @Override
+   * public void execute() {
+   *  if (m_turret.topLimit()) {
+   * 
+   *  }
+   *  else if (m_turret.bottomLimit()) {
+   * 
+   *  }
+   *  else {
+   * 
+   *  }
+   * }
+   */
 
   // Called once the command ends or is interrupted.
   @Override

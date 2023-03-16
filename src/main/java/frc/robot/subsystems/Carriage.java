@@ -32,6 +32,7 @@ import static frc.robot.Constants.CarriageConstants.*;
 public class Carriage extends SubsystemBase {
   private static class Component {
     private final double kPos;
+    private final String name;
     // Neo
     private final CANSparkMax m_driver;
     private final RelativeEncoder m_encoder;
@@ -46,10 +47,11 @@ public class Carriage extends SubsystemBase {
      * @param encoder_position encoders reset angle position
      * @param constraints [(double) maximum velocity, (double) maximum acceleration]
      * 
-     * smart dashboard sorun çıkartırsa buraya 'name' isimli string parametre al smartdashboard keylerine String.format("%s/...", name) kullan.
+     * smart dashboard sorun çıkartırsa buraya 'key' isimli string parametre al smartdashboard keylerine String.format("%s/...", key) kullan.
      */
-    public Component(int motor_id, int forward_ch, int rev_ch, double encoder_position, PIDCoefficients coefficients) {
+    public Component(String name, int motor_id, int forward_ch, int rev_ch, double encoder_position, PIDCoefficients coefficients) {
       kPos = encoder_position;
+      this.name = name;
       
       m_driver = new CANSparkMax(motor_id, MotorType.kBrushless);
       m_brake = new DoubleSolenoid(PN_ID, MODULE_TYPE, forward_ch, rev_ch);
@@ -74,15 +76,16 @@ public class Carriage extends SubsystemBase {
     }
     
     public void moveToAngle(double angle) {
+      String key = name; 
       double setPoint, processVariable;
-      boolean mode = SmartDashboard.getBoolean("Mode", false);
+      boolean mode = SmartDashboard.getBoolean(String.format("%s/Mode", key), false);
       if(MANUAL) {
         if(mode) {
-          setPoint = SmartDashboard.getNumber("Set Velocity", 0);
+          setPoint = SmartDashboard.getNumber(String.format("%s/Set Velocity", key), 0);
           pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
           processVariable = m_encoder.getVelocity();
         } else {
-          setPoint = SmartDashboard.getNumber("Set Position", 0);
+          setPoint = SmartDashboard.getNumber(String.format("%s/Set Position", key), 0);
           /**
            * As with other PID modes, Smart Motion is set by calling the
            * setReference method on an existing pid object and setting
@@ -93,7 +96,7 @@ public class Carriage extends SubsystemBase {
         }
        } else {
           if(mode) {
-            setPoint = SmartDashboard.getNumber("Set Velocity", 0);
+            setPoint = SmartDashboard.getNumber(String.format("%s/Set Velocity", key), 0);
             pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
             processVariable = m_encoder.getVelocity();
         } else {
@@ -102,9 +105,9 @@ public class Carriage extends SubsystemBase {
           processVariable = m_encoder.getPosition();
         }
 
-          SmartDashboard.putNumber("SetPoint", setPoint);
-          SmartDashboard.putNumber("Process Variable", processVariable);
-          SmartDashboard.putNumber("Output", m_driver.getAppliedOutput());
+          SmartDashboard.putNumber(String.format("%s/SetPoint", key), setPoint);
+          SmartDashboard.putNumber(String.format("%s/Process Variable", key), processVariable);
+          SmartDashboard.putNumber(String.format("%s/Output", key), m_driver.getAppliedOutput());
       }
     }
     
@@ -126,17 +129,18 @@ public class Carriage extends SubsystemBase {
     
     /**Read PID coefficients from SmartDashboard, change coeffs if changed*/
     public void getUpdate(int slot) {
-      double p = SmartDashboard.getNumber("P Gain", 0);
-      double i = SmartDashboard.getNumber("I Gain", 0);
-      double d = SmartDashboard.getNumber("D Gain", 0);
-      double iz = SmartDashboard.getNumber("I Zone", 0);
-      double ff = SmartDashboard.getNumber("Feed Forward", 0);
-      double max = SmartDashboard.getNumber("Max Output", 0);
-      double min = SmartDashboard.getNumber("Min Output", 0);
-      double maxV = SmartDashboard.getNumber("Max Velocity", 0);
-      double minV = SmartDashboard.getNumber("Min Velocity", 0);
-      double maxA = SmartDashboard.getNumber("Max Acceleration", 0);
-      double allE = SmartDashboard.getNumber("Allowed Closed Loop Error", 0);
+      String key = name; 
+      double p = SmartDashboard.getNumber(String.format("%s/P Gain", key), 0);
+      double i = SmartDashboard.getNumber(String.format("%s/I Gain", key), 0);
+      double d = SmartDashboard.getNumber(String.format("%s/D Gain", key), 0);
+      double iz = SmartDashboard.getNumber(String.format("%s/I Zone", key), 0);
+      double ff = SmartDashboard.getNumber(String.format("%s/Feed Forward", key), 0);
+      double max = SmartDashboard.getNumber(String.format("%s/Max Output", key), 0);
+      double min = SmartDashboard.getNumber(String.format("%s/Min Output", key), 0);
+      double maxV = SmartDashboard.getNumber(String.format("%s/Max Velocity", key), 0);
+      double minV = SmartDashboard.getNumber(String.format("%s/Min Velocity", key), 0);
+      double maxA = SmartDashboard.getNumber(String.format("%s/Max Acceleration", key), 0);
+      double allE = SmartDashboard.getNumber(String.format("%s/Allowed Closed Loop Error", key), 0);
       
       // if PID coefficients on SmartDashboard have changed, write new values to controller
       if((p != kP)) { pidcontroller.setP(p); kP = p; }
@@ -193,25 +197,26 @@ public class Carriage extends SubsystemBase {
     }
 
     private final void initSmartdashboard() {
+      String key = name;
       // display PID coefficients on SmartDashboard
-      SmartDashboard.putNumber("P Gain", kP);
-      SmartDashboard.putNumber("I Gain", kI);
-      SmartDashboard.putNumber("D Gain", kD);
-      SmartDashboard.putNumber("I Zone", kIz);
-      SmartDashboard.putNumber("Feed Forward", kFF);
-      SmartDashboard.putNumber("Max Output", kMaxOutput);
-      SmartDashboard.putNumber("Min Output", kMinOutput);
+      SmartDashboard.putNumber(String.format("%s/P Gain", key), 0);
+      SmartDashboard.putNumber(String.format("%s/I Gain", key), 0);
+      SmartDashboard.putNumber(String.format("%s/D Gain", key), 0);
+      SmartDashboard.putNumber(String.format("%s/I Zone", key), 0);
+      SmartDashboard.putNumber(String.format("%s/Feed Forward", key), 0);
+      SmartDashboard.putNumber(String.format("%s/Max Output", key), 0);
+      SmartDashboard.putNumber(String.format("%s/Min Output", key), 0);
       
       // display Smart Motion coefficients
-      SmartDashboard.putNumber("Max Velocity", maxVel);
-      SmartDashboard.putNumber("Min Velocity", minVel);
-      SmartDashboard.putNumber("Max Acceleration", maxAcc);
-      SmartDashboard.putNumber("Allowed Closed Loop Error", allowedErr);
-      SmartDashboard.putNumber("Set Position", m_encoder.getPosition());
-      SmartDashboard.putNumber("Set Velocity", 0);
+      SmartDashboard.putNumber(String.format("%s/Max Velocity", key), 0);
+      SmartDashboard.putNumber(String.format("%s/Min Velocity", key), 0);
+      SmartDashboard.putNumber(String.format("%s/Max Acceleration", key), 0);
+      SmartDashboard.putNumber(String.format("%s/Allowed Closed Loop Error", key), allowedErr);
+      SmartDashboard.putNumber(String.format("%s/Set Position", key), m_encoder.getPosition());
+      SmartDashboard.putNumber(String.format("%s/Set Velocity", key), 0);
 
       // button to toggle between velocity and smart motion modes
-      SmartDashboard.putBoolean("Mode", true);
+      SmartDashboard.putBoolean(String.format("%s/Mode", key), true);
     }
   }
   
@@ -223,6 +228,7 @@ public class Carriage extends SubsystemBase {
     }
     private final Controller kType; 
     private final double kPos;
+    private final String name;
     private double kP, kI, kD, kS, kG, kV, kA; 
 
     // Neo
@@ -244,10 +250,11 @@ public class Carriage extends SubsystemBase {
      * @param constraints [(double) maximum velocity, (double) maximum acceleration]
      * @param k PID COEFFICIENTS. should be type enum {@link frc.robot.Constants.PIDCoefficients} in Constants. The enum in constants is where the values are set.
      */
-    public ProfiledComponent(int motor_id, int forward_ch, int rev_ch, double encoder_position, Controller controllerType, double[] constraints, frc.robot.Constants.PIDCoefficients k) {
+    public ProfiledComponent(String name, int motor_id, int forward_ch, int rev_ch, double encoder_position, Controller controllerType, double[] constraints, frc.robot.Constants.PIDCoefficients k) {
       super(new TrapezoidProfile.Constraints(constraints[0], constraints[1]), encoder_position);
       kPos = encoder_position;
       kType = controllerType;
+      this.name = name;
       
       m_driver = new CANSparkMax(motor_id, MotorType.kBrushless);
       m_brake = new DoubleSolenoid(PN_ID, MODULE_TYPE, forward_ch, rev_ch);
@@ -314,16 +321,17 @@ public class Carriage extends SubsystemBase {
     }
 
     private final void initSmartdashboard() {
+      String key = name;
       if (kType == Controller.WPILib) {
       // display PID coefficients on SmartDashboard
-      SmartDashboard.putNumber("P Gain", kP);
-      SmartDashboard.putNumber("I Gain", kI);
-      SmartDashboard.putNumber("D Gain", kD);
-      SmartDashboard.putNumber("S Gain", kS);
-      SmartDashboard.putNumber("G Gain", kG);
-      SmartDashboard.putNumber("V Gain", kV);
-      SmartDashboard.putNumber("A Gain", kA);
-      SmartDashboard.putNumber("Set Position", position());
+      SmartDashboard.putNumber(String.format("%s/P Gain", key), 0);
+      SmartDashboard.putNumber(String.format("%s/I Gain", key), 0);
+      SmartDashboard.putNumber(String.format("%s/D Gain", key), 0);
+      SmartDashboard.putNumber(String.format("%s/S Gain", key), kS);
+      SmartDashboard.putNumber(String.format("%s/G Gain", key), kG);
+      SmartDashboard.putNumber(String.format("%s/V Gain", key), kV);
+      SmartDashboard.putNumber(String.format("%s/A Gain", key), kA);
+      SmartDashboard.putNumber(String.format("%s/Set Position", key), position());
       }
       else {
         // ...
@@ -332,15 +340,15 @@ public class Carriage extends SubsystemBase {
 
     /**Read PID coefficients from SmartDashboard, change coeffs if changed*/
     public void getUpdate() {
+      String key = name;
       if (kType == Controller.WPILib) {
-      double p = SmartDashboard.getNumber("P Gain", 0);
-      double i = SmartDashboard.getNumber("I Gain", 0);
-      double d = SmartDashboard.getNumber("D Gain", 0);
-
-      double s = SmartDashboard.getNumber("S Gain", kS);
-      double g = SmartDashboard.getNumber("G Gain", kG);
-      double v = SmartDashboard.getNumber("V Gain", kV);
-      double a = SmartDashboard.getNumber("A Gain", kA);
+      double p = SmartDashboard.getNumber(String.format("%s/P Gain", key), 0);
+      double i = SmartDashboard.getNumber(String.format("%s/I Gain", key), 0);
+      double d = SmartDashboard.getNumber(String.format("%s/D Gain", key), 0);
+      double s = SmartDashboard.getNumber(String.format("%s/S Gain", key), kS);
+      double g = SmartDashboard.getNumber(String.format("%s/G Gain", key), kG);
+      double v = SmartDashboard.getNumber(String.format("%s/V Gain", key), kV);
+      double a = SmartDashboard.getNumber(String.format("%s/A Gain", key), kA);
 
       // if PID coefficients on SmartDashboard have changed, write new values to controller
       if((p != kP)) { pidcontroller.setP(p); kP = p; }
@@ -351,8 +359,8 @@ public class Carriage extends SubsystemBase {
     }
   }
   
-  private final Component m_arm = new Component(MOTOR_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, ARM_START, ARM_PID);
-  private final Component m_wrist = new Component(MOTOR_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, WRIST_START, WRIST_PID);
+  private final Component m_arm = new Component("Arm", MOTOR_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1, ARM_START, ARM_PID);
+  private final Component m_wrist = new Component("Wrist", MOTOR_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, WRIST_START, WRIST_PID);
   //private final ProfiledComponent m_arm = new ProfiledComponent(MOTOR_ID_1, FORWARD_CHANNEL_1, REVERSE_CHANNEL_1,  ARM_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS, frc.robot.Constants.CarriageConstants.Component.Arm);
   //private final ProfiledComponent m_wrist = new ProfiledComponent(MOTOR_ID_2, PN_ID_2, FORWARD_CHANNEL_2, REVERSE_CHANNEL_2, LIMIT_CH_2, WRIST_START, ProfiledComponent.Controller.WPILib, CONSTRAINTS);
 

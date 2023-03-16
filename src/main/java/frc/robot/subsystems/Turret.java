@@ -13,6 +13,7 @@ import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -36,6 +37,7 @@ public class Turret extends SubsystemBase {
     m_encoder.setPositionConversionFactor(DISTANCE_PER_REV);
     this.reset();
     initCoefficients();
+    initSmartdashboard();
   }
   
   public double position() {
@@ -45,6 +47,21 @@ public class Turret extends SubsystemBase {
   public final void reset() {
     m_encoder.setPosition(ENCODER_START);
   }
+  
+  private final void initSmartdashboard() {
+    SmartDashboard.putNumber("Turret/P Gain", kP);
+    SmartDashboard.putNumber("Turret/I Gain", kI);
+    SmartDashboard.putNumber("Turret/D Gain", kD);
+    SmartDashboard.putNumber("Turret/I Zone", kIz);
+    SmartDashboard.putNumber("Turret/Feed Forward", kFF);
+    SmartDashboard.putNumber("Turret/Max Output", kMaxOutput);
+    SmartDashboard.putNumber("Turret/Min Output", kMinOutput);
+    SmartDashboard.putNumber("Turret/Max Velocity", maxVel);
+    SmartDashboard.putNumber("Turret/Min Velocity", minVel);
+    SmartDashboard.putNumber("Turret/Max Acceleration", maxAcc);
+    SmartDashboard.putNumber("Turret/Allowed Closed Loop Error", allowedErr);
+    SmartDashboard.putNumber("Turret/Position", m_encoder.getPosition());
+  } 
   
   private final void initCoefficients() {
     // PID Coefficients
@@ -69,21 +86,58 @@ public class Turret extends SubsystemBase {
     pidcontroller.setD(kD);
     pidcontroller.setIZone(kIz);
     pidcontroller.setFF(kFF);
+    pidcontroller.setOutputRange(kMinOutput, kMaxOutput);
     pidcontroller.setSmartMotionMaxVelocity(maxVel, COEFF.PID_SLOT);
     pidcontroller.setSmartMotionMinOutputVelocity(minVel, COEFF.PID_SLOT);
     pidcontroller.setSmartMotionMaxAccel(maxAcc, COEFF.PID_SLOT);
     pidcontroller.setSmartMotionAllowedClosedLoopError(allowedErr, COEFF.PID_SLOT);
   }
 
+  /**Read PID coefficients from SmartDashboard, change coeffs if changed*/
+  private void update() {
+    double p = SmartDashboard.getNumber("Turret/P Gain", 0);
+    double i = SmartDashboard.getNumber("Turret/I Gain", 0);
+    double d = SmartDashboard.getNumber("Turret/D Gain", 0);
+    double iz = SmartDashboard.getNumber("Turret/I Zone", 0);
+    double ff = SmartDashboard.getNumber("Turret/Feed Forward", 0);
+    double max = SmartDashboard.getNumber("Turret/Max Output", 0);
+    double min = SmartDashboard.getNumber("Turret/Min Output", 0);
+    double maxV = SmartDashboard.getNumber("Turret/Max Velocity", 0);
+    double minV = SmartDashboard.getNumber("Turret/Min Velocity", 0);
+    double maxA = SmartDashboard.getNumber("Turret/Max Acceleration", 0);
+    double allE = SmartDashboard.getNumber("Turret/Allowed Closed Loop Error", 0);
+    
+    // if PID coefficients on SmartDashboard have changed, write new values to controller
+    if((p != kP)) { pidcontroller.setP(p); kP = p; }
+    if((i != kI)) { pidcontroller.setI(i); kI = i; }
+    if((d != kD)) { pidcontroller.setD(d); kD = d; }
+    if((iz != kIz)) { pidcontroller.setIZone(iz); kIz = iz; }
+    if((ff != kFF)) { pidcontroller.setFF(ff); kFF = ff; }
+    if((max != kMaxOutput) || (min != kMinOutput)) { 
+      pidcontroller.setOutputRange(min, max); 
+      kMinOutput = min; kMaxOutput = max; 
+    }
+    if((maxV != maxVel)) { pidcontroller.setSmartMotionMaxVelocity(maxV, COEFF.PID_SLOT); maxVel = maxV; }
+    if((minV != minVel)) { pidcontroller.setSmartMotionMinOutputVelocity(minV, COEFF.PID_SLOT); minVel = minV; }
+    if((maxA != maxAcc)) { pidcontroller.setSmartMotionMaxAccel(maxA, COEFF.PID_SLOT); maxAcc = maxA; }
+    if((allE != allowedErr)) { pidcontroller.setSmartMotionAllowedClosedLoopError(allE, COEFF.PID_SLOT); allowedErr = allE; }
+    m_driver.burnFlash();
+  } 
+
+  public void turn(double speed) {
+    m_driver.set(speed);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    update();
   }
 
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    builder.addBooleanProperty("Turret Limit Switch",  m_limit::get, null);;
+    builder.addBooleanProperty("Turret/Limit Switch",  m_limit::get, null);;
   }
 
   public CommandBase power(double speed) {

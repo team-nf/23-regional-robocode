@@ -20,6 +20,8 @@ public final class Constants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int OPERATOR_CONTROLLER_PORT = 1;
 
+    public static final int DRIVE_MODE = 0;
+    public static final boolean TEST = true;
     public static final boolean OPERATING = false;
   }
   public static class CAN {
@@ -91,7 +93,7 @@ public final class Constants {
     330, // rpm
     -330,
     12,
-    5,
+    0.04,
     1,
     1,
     0.5,

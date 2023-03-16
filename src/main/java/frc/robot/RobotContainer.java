@@ -16,6 +16,7 @@ import frc.robot.subsystems.Carriage;
 import frc.robot.subsystems.Gripper;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -80,6 +81,8 @@ public class RobotContainer {
     // Drive Base
     // Schedule command to shift gears when the Xbox controller's B button is pressed, cancelling on release.
     m_driverController.b().whileTrue(m_driveBase.shiftGear());
+    // Switch Driving mode
+    m_driverController.a().onTrue(m_driveBase.toggleMode());
 
     // Turret
     m_operatorController.a().and(m_turret::ok).whileTrue(m_turret.power(0.5));

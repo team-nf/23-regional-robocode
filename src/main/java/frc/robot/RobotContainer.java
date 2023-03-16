@@ -65,7 +65,7 @@ public class RobotContainer {
 
     // Drive Base
     // Schedule command to shift gear back to default when condition changes to `true` -when not moving and shifter is not default-
-    new Trigger(m_driveBase::motion).negate().and(m_driveBase::shifterCondition).onTrue(m_driveBase.shiftGear());
+    new Trigger(m_driveBase::motion).negate().and(m_driveBase::shifterCondition).onFalse(m_driveBase.shiftGear());
     
     // Turret
     new Trigger(m_turret::limit).onTrue(m_turret.brake());

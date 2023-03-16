@@ -108,19 +108,18 @@ public class DriveBase extends SubsystemBase {
     m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }
 
-  public void setSpeeds(DifferentialDriveWheelSpeeds speeds, boolean voltage) {
+  public void setSpeeds(DifferentialDriveWheelSpeeds speeds, boolean isTest) {
+    if (isTest) {
+      m_drive.tankDrive(speeds.leftMetersPerSecond, speeds.rightMetersPerSecond);
+    }
     final double leftFeedfoward = m_feedforward.calculate(speeds.leftMetersPerSecond);
     final double rightFeedfoward = m_feedforward.calculate(speeds.rightMetersPerSecond);
 
     final double leftOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), speeds.leftMetersPerSecond);
     final double rightOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), speeds.rightMetersPerSecond);
 
-    if (voltage) {
     m_leftMotors.setVoltage(leftOutput + leftFeedfoward);
     m_rightMotors.setVoltage(rightOutput + rightFeedfoward);
-    }
-    else
-    {m_drive.tankDrive((leftOutput + leftFeedfoward), (rightOutput + rightFeedfoward));}
   }
   
   public void drive(double speed, double rotation) {
@@ -128,9 +127,9 @@ public class DriveBase extends SubsystemBase {
     setSpeeds(wheelSpeeds, false);
   }
 
-  public void drive(double speed, double rotation, boolean voltage) {
+  public void drive(double speed, double rotation, boolean isTest) {
     var wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(speed, 0.0, rotation));
-    setSpeeds(wheelSpeeds, voltage);
+    setSpeeds(wheelSpeeds, isTest);
   }
 
   /**

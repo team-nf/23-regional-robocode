@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 /**
@@ -32,15 +35,17 @@ public final class Constants {
   }
   public static enum PIDCoefficients {
     DriveBase(
-      0,
-      1,
-      0,
-      0,
-      0,
-      0.5,
-      1,
-      -1,
-      330
+      new HashMap<String, Double>(){
+        {
+        put("p", 1.0);
+        put("i", 0.0);
+        put("d", 0.0);
+        put("maxOut", 1.0);
+        put("minOut", -1.0);
+        put("s", 1.0);
+        put("v", 1.0);
+      }
+      }
     ),
     Arm(
     0,
@@ -158,6 +163,28 @@ public final class Constants {
       this.V = v;
       this.A = a;
     }
+    static double getParm(Map<String, Double> map, String key, double defaultValue) {
+      return (map.containsKey(key)) ? (double) map.get(key) : defaultValue;
+    }
+    private PIDCoefficients(Map<String, Double> coeffs) {
+      this.PID_SLOT = (int) getParm(coeffs, "slot", 0);
+      this.P = getParm(coeffs, "p", 0);
+      this.I = getParm(coeffs, "i", 0);
+      this.D = getParm(coeffs, "d", 0);
+      this.IZ = getParm(coeffs, "iz", 0);
+      this.FF = getParm(coeffs, "ff", 0);
+      this.MAX_OUTPUT = getParm(coeffs, "maxOutput", 1);
+      this.MIN_OUTPUT = getParm(coeffs, "minOutput", -1);
+      this.MAX_RPM = getParm(coeffs, "rpm", 660);
+      this.MAX_VEL = getParm(coeffs, "maxVel", 0);
+      this.MIN_VEL = getParm(coeffs, "minVel", 0);
+      this.MAX_ACC = getParm(coeffs, "maxAcc", 0);
+      this.ALLOWED_ERR = getParm(coeffs, "allowedErr", 0);
+      this.S = getParm(coeffs, "s", 0);
+      this.G = getParm(coeffs, "g", 0);
+      this.V = getParm(coeffs, "v", 0);
+      this.A = getParm(coeffs, "a", 0);
+    } 
   }
   public static class DriveBaseConstants {
     // Mathematics
@@ -279,7 +306,7 @@ public final class Constants {
   }
   public static class TestConstants {
     // Drive Base
-    public static final double TEST_CHASSIS_SPEED = 1.0;
+    public static final double TEST_CHASSIS_SPEED = 3.0;
     public static final double TEST_CHASSIS_ANGULAR = 2 * Math.PI;
     
     // Turret

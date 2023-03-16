@@ -44,6 +44,7 @@ public class Drive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (TEST) {test();}
     switch (m_driveBase.getMode()) 
     {
       case 0: 
@@ -109,6 +110,8 @@ public class Drive extends CommandBase {
   }
 
   public void test() {
-    m_driveBase.drive(TEST_CHASSIS_SPEED, TEST_CHASSIS_ANGULAR);
+    final var xSpeed = -m_speedLimiter.calculate(m_controller.getLeftY()) * TEST_CHASSIS_SPEED;
+    final var rot = -m_rotLimiter.calculate(m_controller.getLeftY()) * TEST_CHASSIS_ANGULAR;
+    m_driveBase.drive(xSpeed, rot, TEST);
   }
 }

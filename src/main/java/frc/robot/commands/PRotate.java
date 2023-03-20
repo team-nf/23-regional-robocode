@@ -18,7 +18,7 @@ public class PRotate extends ProfiledPIDCommand{
             (output, setpoint) -> turret.turn(output), 
             turret);
 
-        getController().enableContinuousInput(-180, 180);
+        //getController().enableContinuousInput(-180, 180);
         getController().setTolerance(COEFF.ALLOWED_ERR, COEFF.MAX_RPM);  // max rpm is the allowed error of velocity. sorry for the sloppy writing
 
         m_turret = turret;
@@ -30,8 +30,8 @@ public class PRotate extends ProfiledPIDCommand{
      */
     @Override
     public void initialize() {
-        if (m_turret.limit() && m_turret.position() > 0 && getController().getGoal().position > m_turret.position()) {end(true);}
-        else if (m_turret.limit() && m_turret.position() < 0 && getController().getGoal().position < m_turret.position()) {end(true);}
+        //if (m_turret.limit() && m_turret.position() > 0 && getController().getGoal().position > m_turret.position()) {end(true);}
+        //else if (m_turret.limit() && m_turret.position() < 0 && getController().getGoal().position < m_turret.position()) {end(true);}
     }
     @Override
     public boolean isFinished() {

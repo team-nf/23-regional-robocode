@@ -8,20 +8,27 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import static frc.robot.Constants.TurretConstants.*;
 
+import javax.xml.namespace.QName;
+
 public class Turret extends SubsystemBase {
-  private double kP, kI, kD, kIz, kFF, kMinOutput, kMaxOutput, minVel, maxVel, maxAcc, maxRPM, allowedErr;
+  private double kP, kI, kD, kIz, kFF, kS, kG, kV, kA, kMinOutput, kMaxOutput, minVel, maxVel, maxAcc, maxRPM, allowedErr;
   // Neo
   private final CANSparkMax m_driver = new CANSparkMax(MOTOR_ID, MotorType.kBrushless);
 
@@ -29,14 +36,18 @@ public class Turret extends SubsystemBase {
   private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kHallSensor, (int)(ENCODER_CPR));  
   // PIDController
   private final SparkMaxPIDController pidcontroller = m_driver.getPIDController();
+  private final PIDController secondarypid = new PIDController(1, 0, 0);
+
   // Limit switch
   private final DigitalInput m_limit = new DigitalInput(LIMIT_CH);
 
   /** Creates a new Turret. */
   public Turret() {
     m_encoder.setPositionConversionFactor(DISTANCE_PER_REV);
+    m_encoder.setVelocityConversionFactor(DISTANCE_PER_REV);
     this.reset();
     initCoefficients();
+    setPID();
     initSmartdashboard();
   }
   
@@ -44,23 +55,31 @@ public class Turret extends SubsystemBase {
     return m_driver.getEncoder().getPosition();
   }
   
+  public double velocity() {
+    return m_driver.getEncoder().getVelocity();
+  }
+
   public final void reset() {
     m_encoder.setPosition(ENCODER_START);
   }
   
   private final void initSmartdashboard() {
-    SmartDashboard.putNumber("Turret/P Gain", kP);
-    SmartDashboard.putNumber("Turret/I Gain", kI);
-    SmartDashboard.putNumber("Turret/D Gain", kD);
-    SmartDashboard.putNumber("Turret/I Zone", kIz);
-    SmartDashboard.putNumber("Turret/Feed Forward", kFF);
-    SmartDashboard.putNumber("Turret/Max Output", kMaxOutput);
-    SmartDashboard.putNumber("Turret/Min Output", kMinOutput);
-    SmartDashboard.putNumber("Turret/Max Velocity", maxVel);
-    SmartDashboard.putNumber("Turret/Min Velocity", minVel);
-    SmartDashboard.putNumber("Turret/Max Acceleration", maxAcc);
-    SmartDashboard.putNumber("Turret/Allowed Closed Loop Error", allowedErr);
-    SmartDashboard.putNumber("Turret/Position", m_encoder.getPosition());
+    SmartDashboard.putNumber("Turret/p", kP);
+    SmartDashboard.putNumber("Turret/i", kI);
+    SmartDashboard.putNumber("Turret/d", kD);
+    SmartDashboard.putNumber("Turret/iz", kIz);
+    SmartDashboard.putNumber("Turret/ff", kFF);
+    SmartDashboard.putNumber("Turret/s", kS);
+    SmartDashboard.putNumber("Turret/v", kV);
+    SmartDashboard.putNumber("Turret/g", kG);
+    SmartDashboard.putNumber("Turret/a", kA);
+    SmartDashboard.putNumber("Turret/maxOut", kMaxOutput);
+    SmartDashboard.putNumber("Turret/minOut", kMinOutput);
+    SmartDashboard.putNumber("Turret/maxVel", maxVel);
+    SmartDashboard.putNumber("Turret/minVel", minVel);
+    SmartDashboard.putNumber("Turret/maxAcc", maxAcc);
+    SmartDashboard.putNumber("Turret/allowedErr", allowedErr);
+    SmartDashboard.putNumber("Turret/position", m_encoder.getPosition());
   } 
   
   private final void initCoefficients() {
@@ -68,6 +87,10 @@ public class Turret extends SubsystemBase {
     kP = COEFF.P;
     kI = COEFF.I;
     kD = COEFF.D;
+    kS = COEFF.S;
+    kG = COEFF.G;
+    kV = COEFF.V;
+    kA = COEFF.A;
     kIz = COEFF.IZ;
     kFF = COEFF.FF;
     kMinOutput = COEFF.MIN_OUTPUT;
@@ -81,12 +104,15 @@ public class Turret extends SubsystemBase {
   }
 
   private final void setPID() {
-    pidcontroller.setP(kP);
-    pidcontroller.setI(kI);
-    pidcontroller.setD(kD);
-    pidcontroller.setIZone(kIz);
-    pidcontroller.setFF(kFF);
-    pidcontroller.setOutputRange(kMinOutput, kMaxOutput);
+    pidcontroller.setP(0, 0);
+    pidcontroller.setI(0, 0);
+    pidcontroller.setD(0, 0);
+    pidcontroller.setP(kP, COEFF.PID_SLOT);
+    pidcontroller.setI(kI, COEFF.PID_SLOT);
+    pidcontroller.setD(kD, COEFF.PID_SLOT);
+    pidcontroller.setIZone(kIz, COEFF.PID_SLOT);
+    pidcontroller.setFF(kFF, COEFF.PID_SLOT);
+    pidcontroller.setOutputRange(kMinOutput, kMaxOutput, COEFF.PID_SLOT);
     pidcontroller.setSmartMotionMaxVelocity(maxVel, COEFF.PID_SLOT);
     pidcontroller.setSmartMotionMinOutputVelocity(minVel, COEFF.PID_SLOT);
     pidcontroller.setSmartMotionMaxAccel(maxAcc, COEFF.PID_SLOT);
@@ -95,17 +121,21 @@ public class Turret extends SubsystemBase {
 
   /**Read PID coefficients from SmartDashboard, change coeffs if changed*/
   private void update() {
-    double p = SmartDashboard.getNumber("Turret/P Gain", 0);
-    double i = SmartDashboard.getNumber("Turret/I Gain", 0);
-    double d = SmartDashboard.getNumber("Turret/D Gain", 0);
-    double iz = SmartDashboard.getNumber("Turret/I Zone", 0);
-    double ff = SmartDashboard.getNumber("Turret/Feed Forward", 0);
-    double max = SmartDashboard.getNumber("Turret/Max Output", 0);
-    double min = SmartDashboard.getNumber("Turret/Min Output", 0);
-    double maxV = SmartDashboard.getNumber("Turret/Max Velocity", 0);
-    double minV = SmartDashboard.getNumber("Turret/Min Velocity", 0);
-    double maxA = SmartDashboard.getNumber("Turret/Max Acceleration", 0);
-    double allE = SmartDashboard.getNumber("Turret/Allowed Closed Loop Error", 0);
+    double p = SmartDashboard.getNumber("Turret/p", 0);
+    double i = SmartDashboard.getNumber("Turret/i", 0);
+    double d = SmartDashboard.getNumber("Turret/d", 0);
+    double iz = SmartDashboard.getNumber("Turret/iz", 0);
+    double ff = SmartDashboard.getNumber("Turret/ff", 0);
+    double s = SmartDashboard.getNumber("Turret/s", 0);
+    double g = SmartDashboard.getNumber("Turret/g", 0);
+    double v = SmartDashboard.getNumber("Turret/v", 0);
+    double a = SmartDashboard.getNumber("Turret/a", 0);
+    double max = SmartDashboard.getNumber("Turret/maxOut", 0);
+    double min = SmartDashboard.getNumber("Turret/minOut", 0);
+    double maxV = SmartDashboard.getNumber("Turret/maxVel", 0);
+    double minV = SmartDashboard.getNumber("Turret/minVel", 0);
+    double maxA = SmartDashboard.getNumber("Turret/maxAcc", 0);
+    double allE = SmartDashboard.getNumber("Turret/allowedErr", 0);
     
     // if PID coefficients on SmartDashboard have changed, write new values to controller
     if((p != kP)) { pidcontroller.setP(p); kP = p; }
@@ -113,6 +143,10 @@ public class Turret extends SubsystemBase {
     if((d != kD)) { pidcontroller.setD(d); kD = d; }
     if((iz != kIz)) { pidcontroller.setIZone(iz); kIz = iz; }
     if((ff != kFF)) { pidcontroller.setFF(ff); kFF = ff; }
+    if((s != kS)) { kS = s; }
+    if((v != kV)) { kV = v; }
+    if((g != kG)) { kG = g; } 
+    if((a != kA)) { kA = a; }
     if((max != kMaxOutput) || (min != kMinOutput)) { 
       pidcontroller.setOutputRange(min, max); 
       kMinOutput = min; kMaxOutput = max; 
@@ -122,8 +156,40 @@ public class Turret extends SubsystemBase {
     if((maxA != maxAcc)) { pidcontroller.setSmartMotionMaxAccel(maxA, COEFF.PID_SLOT); maxAcc = maxA; }
     if((allE != allowedErr)) { pidcontroller.setSmartMotionAllowedClosedLoopError(allE, COEFF.PID_SLOT); allowedErr = allE; }
     m_driver.burnFlash();
+
+    SmartDashboard.putNumber("Turret/position", position());
+  } 
+  
+  private void rotateFromDashboard() {
+    double setPoint, processVariable;
+    setPoint = SmartDashboard.getNumber("Turret/Set Position", 0);
+    pidcontroller.setReference(setPoint, CANSparkMax.ControlType.kSmartMotion);
+    processVariable = m_encoder.getPosition();
+    
+    SmartDashboard.putNumber("Turret/SetPoint", setPoint);
+    SmartDashboard.putNumber("Turret/Process Variable", processVariable);
+    SmartDashboard.putNumber("Turret/Output", m_driver.getAppliedOutput());
+  }
+
+  public void rotateByInput(double input) {
+
   } 
 
+  public void rotateToAngle(double angle) {
+    double ff = new SimpleMotorFeedforward(kS, kV).calculate(DISTANCE_PER_REV);
+    pidcontroller.setReference(angle, ControlType.kPosition, COEFF.PID_SLOT, COEFF.FF );
+  }
+
+   /**
+   * Attempts to follow the given drive states using trapezoidal profile.
+   *
+   * @param state The turret state.
+   */
+  public void rotateToState(TrapezoidProfile.State state) {
+    double ff = new SimpleMotorFeedforward(kS, kV).calculate(state.velocity);
+    pidcontroller.setReference(state.position, ControlType.kPosition, 0, ff);
+  }
+   
   public void turn(double speed) {
     m_driver.set(speed);
   }
@@ -138,6 +204,15 @@ public class Turret extends SubsystemBase {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
     builder.addBooleanProperty("Turret/Limit Switch",  m_limit::get, null);;
+  }
+
+  public CommandBase rotate(double angle) {
+    return new TrapezoidProfileCommand(
+      new TrapezoidProfile(new TrapezoidProfile.Constraints(COEFF.MAX_VEL, COEFF.MAX_ACC),
+      new TrapezoidProfile.State(angle, 0),
+      new TrapezoidProfile.State(position(), velocity())), 
+      state -> this.rotateToAngle(state.position), 
+      this);
   }
 
   public CommandBase power(double speed) {

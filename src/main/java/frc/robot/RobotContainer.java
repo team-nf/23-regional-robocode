@@ -8,7 +8,8 @@ import frc.robot.Constants.OperatorConstants;
 
 import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
-
+import frc.robot.commands.PRotate;
+import frc.robot.commands.TRotate;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Lift;
@@ -85,7 +86,11 @@ public class RobotContainer {
     m_driverController.a().onTrue(m_driveBase.toggleMode());
 
     // Turret
-    m_operatorController.a().and(m_turret::ok).whileTrue(m_turret.power(0.5));
+    m_operatorController.a().whileTrue(m_turret.power(0.5));
+    m_operatorController.y().whileTrue(m_turret.rotate(30));  
+    m_operatorController.b().whileTrue(m_turret.power(0));
+    m_operatorController.axisGreaterThan(0, 0.3).whileTrue(new TRotate(m_turret, m_operatorController, 1).andThen(m_turret.brake()));
+    m_operatorController.axisLessThan(0, -0.3).whileTrue(new TRotate(m_turret, m_operatorController, -1).andThen(m_turret.brake()));
 
     // Carriage
     m_operatorController.x().onTrue(m_carriage.rotate(90, m_carriage.arm()));

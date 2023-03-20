@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -15,7 +14,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
-import frc.robot.Constants.CarriageConstants;
 import frc.robot.Constants.PIDCoefficients;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -130,17 +128,17 @@ public class Carriage extends SubsystemBase {
     /**Read PID coefficients from SmartDashboard, change coeffs if changed*/
     public void getUpdate(int slot) {
       String key = name; 
-      double p = SmartDashboard.getNumber(String.format("%s/P Gain", key), 0);
-      double i = SmartDashboard.getNumber(String.format("%s/I Gain", key), 0);
-      double d = SmartDashboard.getNumber(String.format("%s/D Gain", key), 0);
-      double iz = SmartDashboard.getNumber(String.format("%s/I Zone", key), 0);
-      double ff = SmartDashboard.getNumber(String.format("%s/Feed Forward", key), 0);
-      double max = SmartDashboard.getNumber(String.format("%s/Max Output", key), 0);
-      double min = SmartDashboard.getNumber(String.format("%s/Min Output", key), 0);
-      double maxV = SmartDashboard.getNumber(String.format("%s/Max Velocity", key), 0);
-      double minV = SmartDashboard.getNumber(String.format("%s/Min Velocity", key), 0);
-      double maxA = SmartDashboard.getNumber(String.format("%s/Max Acceleration", key), 0);
-      double allE = SmartDashboard.getNumber(String.format("%s/Allowed Closed Loop Error", key), 0);
+      double p = SmartDashboard.getNumber(String.format("%s/p", key), 0);
+      double i = SmartDashboard.getNumber(String.format("%s/i", key), 0);
+      double d = SmartDashboard.getNumber(String.format("%s/d", key), 0);
+      double iz = SmartDashboard.getNumber(String.format("%s/iz", key), 0);
+      double ff = SmartDashboard.getNumber(String.format("%s/ff", key), 0);
+      double max = SmartDashboard.getNumber(String.format("%s/maxOut", key), 0);
+      double min = SmartDashboard.getNumber(String.format("%s/minOut", key), 0);
+      double maxV = SmartDashboard.getNumber(String.format("%s/maxVel", key), 0);
+      double minV = SmartDashboard.getNumber(String.format("%s/minVel", key), 0);
+      double maxA = SmartDashboard.getNumber(String.format("%s/maxAcc", key), 0);
+      double allE = SmartDashboard.getNumber(String.format("%s/allowedErr", key), 0);
       
       // if PID coefficients on SmartDashboard have changed, write new values to controller
       if((p != kP)) { pidcontroller.setP(p); kP = p; }
@@ -199,19 +197,19 @@ public class Carriage extends SubsystemBase {
     private final void initSmartdashboard() {
       String key = name;
       // display PID coefficients on SmartDashboard
-      SmartDashboard.putNumber(String.format("%s/P Gain", key), 0);
-      SmartDashboard.putNumber(String.format("%s/I Gain", key), 0);
-      SmartDashboard.putNumber(String.format("%s/D Gain", key), 0);
-      SmartDashboard.putNumber(String.format("%s/I Zone", key), 0);
-      SmartDashboard.putNumber(String.format("%s/Feed Forward", key), 0);
-      SmartDashboard.putNumber(String.format("%s/Max Output", key), 0);
-      SmartDashboard.putNumber(String.format("%s/Min Output", key), 0);
+      SmartDashboard.putNumber(String.format("%s/p", key), 0);
+      SmartDashboard.putNumber(String.format("%s/i", key), 0);
+      SmartDashboard.putNumber(String.format("%s/d", key), 0);
+      SmartDashboard.putNumber(String.format("%s/iz", key), 0);
+      SmartDashboard.putNumber(String.format("%s/ff", key), 0);
+      SmartDashboard.putNumber(String.format("%s/maxOut", key), 0);
+      SmartDashboard.putNumber(String.format("%s/minOut", key), 0);
       
       // display Smart Motion coefficients
-      SmartDashboard.putNumber(String.format("%s/Max Velocity", key), 0);
-      SmartDashboard.putNumber(String.format("%s/Min Velocity", key), 0);
-      SmartDashboard.putNumber(String.format("%s/Max Acceleration", key), 0);
-      SmartDashboard.putNumber(String.format("%s/Allowed Closed Loop Error", key), allowedErr);
+      SmartDashboard.putNumber(String.format("%s/maxVel", key), 0);
+      SmartDashboard.putNumber(String.format("%s/minVel", key), 0);
+      SmartDashboard.putNumber(String.format("%s/maxAcc", key), 0);
+      SmartDashboard.putNumber(String.format("%s/allowedErr", key), allowedErr);
       SmartDashboard.putNumber(String.format("%s/Set Position", key), m_encoder.getPosition());
       SmartDashboard.putNumber(String.format("%s/Set Velocity", key), 0);
 
@@ -324,13 +322,13 @@ public class Carriage extends SubsystemBase {
       String key = name;
       if (kType == Controller.WPILib) {
       // display PID coefficients on SmartDashboard
-      SmartDashboard.putNumber(String.format("%s/P Gain", key), 0);
-      SmartDashboard.putNumber(String.format("%s/I Gain", key), 0);
-      SmartDashboard.putNumber(String.format("%s/D Gain", key), 0);
-      SmartDashboard.putNumber(String.format("%s/S Gain", key), kS);
-      SmartDashboard.putNumber(String.format("%s/G Gain", key), kG);
-      SmartDashboard.putNumber(String.format("%s/V Gain", key), kV);
-      SmartDashboard.putNumber(String.format("%s/A Gain", key), kA);
+      SmartDashboard.putNumber(String.format("%s/p", key), 0);
+      SmartDashboard.putNumber(String.format("%s/i", key), 0);
+      SmartDashboard.putNumber(String.format("%s/d", key), 0);
+      SmartDashboard.putNumber(String.format("%s/s", key), kS);
+      SmartDashboard.putNumber(String.format("%s/g", key), kG);
+      SmartDashboard.putNumber(String.format("%s/v", key), kV);
+      SmartDashboard.putNumber(String.format("%s/a", key), kA);
       SmartDashboard.putNumber(String.format("%s/Set Position", key), position());
       }
       else {
@@ -342,13 +340,13 @@ public class Carriage extends SubsystemBase {
     public void getUpdate() {
       String key = name;
       if (kType == Controller.WPILib) {
-      double p = SmartDashboard.getNumber(String.format("%s/P Gain", key), 0);
-      double i = SmartDashboard.getNumber(String.format("%s/I Gain", key), 0);
-      double d = SmartDashboard.getNumber(String.format("%s/D Gain", key), 0);
-      double s = SmartDashboard.getNumber(String.format("%s/S Gain", key), kS);
-      double g = SmartDashboard.getNumber(String.format("%s/G Gain", key), kG);
-      double v = SmartDashboard.getNumber(String.format("%s/V Gain", key), kV);
-      double a = SmartDashboard.getNumber(String.format("%s/A Gain", key), kA);
+      double p = SmartDashboard.getNumber(String.format("%s/p", key), 0);
+      double i = SmartDashboard.getNumber(String.format("%s/i", key), 0);
+      double d = SmartDashboard.getNumber(String.format("%s/d", key), 0);
+      double s = SmartDashboard.getNumber(String.format("%s/s", key), kS);
+      double g = SmartDashboard.getNumber(String.format("%s/g", key), kG);
+      double v = SmartDashboard.getNumber(String.format("%s/v", key), kV);
+      double a = SmartDashboard.getNumber(String.format("%s/a", key), kA);
 
       // if PID coefficients on SmartDashboard have changed, write new values to controller
       if((p != kP)) { pidcontroller.setP(p); kP = p; }

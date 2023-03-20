@@ -30,7 +30,7 @@ public final class Constants {
   public static class CAN {
     public static final int PDH_ID = 1;
     public static final int REVPH = 1;
-    public static final int[] SPARK = {2, 5, 6, 7, 3, 4};
+    public static final int[] SPARK = {5, 2, 6, 7, 3, 4};
     public static final int[] VICTOR = {8, 9, 10, 11, 12, 13};
   }
   public static enum PIDCoefficients {
@@ -44,125 +44,79 @@ public final class Constants {
         put("minOut", -1.0);
         put("s", 1.0);
         put("v", 1.0);
+        }
       }
+    ),
+    Turret(
+      new HashMap<String, Double>() {
+        {
+        put("slot", 1.0);
+        put("p", 0.3);
+        put("i", 0.0);
+        put("d", 0.05);
+        put("iz", 0.0);
+        put("ff", 1.50);
+        put("maxOut", 1.0);
+        put("minOut", -1.0);
+        put("rpm", 330.0);
+        put("maxVel", 18.0);
+        put("minVel", -18.0);
+        put("maxAcc", 12.0);
+        put("allowedErr", 0.4);
+        put("s", 0.1);
+        put("g", 0.0);
+        put("v", 0.25);
+        put("a", 0.0);
+        }
       }
     ),
     Arm(
-    0,
-    3,
-    1e-2,
-    0.5, 
-    0, 
-    0.000156, 
-    1, 
-    -1,
-    240, 
-    180, // rpm
-    -180,
-    10, 
-    5,
-    1,
-    1,
-    0.5,
-    0.1
+      new HashMap<String, Double>() {
+        {
+        put("p", 3.0);
+        put("i", 1e-2);
+        put("d", 0.5);
+        put("iz", 0.0);
+        put("ff", 0.000156);
+        put("maxOut", 1.0);
+        put("minOut", -1.0);
+        put("rpm", 240.0);
+        put("maxVel", 180.0);
+        put("minVel", -180.0);
+        put("maxAcc", 10.0);
+        put("allowedErr", 0.1);
+        put("s", 1.25);
+        put("g", 1.75);
+        put("v", 1.95);
+        put("a", 0.1);
+        }
+      }
     ),
     Wrist(
-    0,
-    3,
-    1e-2,
-    0.5, 
-    0, 
-    0.000156, 
-    1, 
-    -1,
-    240, 
-    180, // rpm
-    -180,
-    10, 
-    5,
-    1,
-    1,
-    0.5,
-    0.1
-    ),
-    Turret(
-    0,
-    5e-5,
-    1e-6,
-    0, 
-    0, 
-    0.000156, 
-    1, 
-    -1,
-    330,
-    330, // rpm
-    -330,
-    12,
-    0.04,
-    1,
-    1,
-    0.5,
-    0.1
+      new HashMap<String, Double>() {
+        {
+        put("p", 3.0);
+        put("i", 1e-2);
+        put("d", 0.5);
+        put("iz", 0.0);
+        put("ff", 0.000156);
+        put("maxOut", 1.0);
+        put("minOut", -1.0);
+        put("rpm", 240.0);
+        put("maxVel", 180.0);
+        put("minVel", -180.0);
+        put("maxAcc", 10.0);
+        put("allowedErr", 0.1);
+        put("s", 1.25);
+        put("g", 1.75);
+        put("v", 1.95);
+        put("a", 0.1);
+        }
+      }
     );
     public final int PID_SLOT;
     public final double P, I, D, IZ, FF, MAX_OUTPUT, MIN_OUTPUT, MAX_RPM, MAX_VEL, MIN_VEL, MAX_ACC, ALLOWED_ERR, S, G, V, A; 
-    private PIDCoefficients(int slot, double p, double i, double d, double iz, double ff, double max_out, double min_out, double rpm) {
-      this.PID_SLOT = slot;
-      this.P = p;
-      this.I = i;
-      this.D = d;
-      this.IZ = iz;
-      this.FF = ff;
-      this.MAX_OUTPUT = max_out;
-      this.MIN_OUTPUT = min_out;
-      this.MAX_RPM = rpm;
-      this.MAX_VEL = 0;
-      this.MIN_VEL = 0;
-      this.MAX_ACC = 0;
-      this.ALLOWED_ERR = 0;
-      this.S = 0;
-      this.G = 0;
-      this.V = 0;
-      this.A = 0;
-    }
-    private PIDCoefficients(int slot, double p, double i, double d, double iz, double ff, double max_out, double min_out, double rpm, double max_vel, double min_vel, double acc, double err){
-      this.PID_SLOT = slot;
-      this.P = p;
-      this.I = i;
-      this.D = d;
-      this.IZ = iz;
-      this.FF = ff;
-      this.MAX_OUTPUT = max_out;
-      this.MIN_OUTPUT = min_out;
-      this.MAX_RPM = rpm;
-      this.MAX_VEL = max_vel;
-      this.MIN_VEL = min_vel;
-      this.MAX_ACC = acc;
-      this.ALLOWED_ERR = err;
-      this.S = 0;
-      this.G = 0;
-      this.V = 0;
-      this.A = 0;
-    }
-    private PIDCoefficients(int slot, double p, double i, double d, double iz, double ff, double max_out, double min_out, double rpm, double max_vel, double min_vel, double acc, double err, double s, double g, double v, double a){
-      this.PID_SLOT = slot;
-      this.P = p;
-      this.I = i;
-      this.D = d;
-      this.IZ = iz;
-      this.FF = ff;
-      this.MAX_OUTPUT = max_out;
-      this.MIN_OUTPUT = min_out;
-      this.MAX_RPM = rpm;
-      this.MAX_VEL = max_vel;
-      this.MIN_VEL = min_vel;
-      this.MAX_ACC = acc;
-      this.ALLOWED_ERR = err;
-      this.S = s;
-      this.G = g;
-      this.V = v;
-      this.A = a;
-    }
+    
     static double getParm(Map<String, Double> map, String key, double defaultValue) {
       return (map.containsKey(key)) ? (double) map.get(key) : defaultValue;
     }

@@ -108,6 +108,10 @@ public class Carriage extends SubsystemBase {
           SmartDashboard.putNumber(String.format("%s/Output", key), m_driver.getAppliedOutput());
       }
     }
+
+    public void move(double speed) {
+      pidcontroller.setReference(speed, ControlType.kSmartVelocity);
+    }
     
     public void brake() {m_brake.set(Value.kForward);}
 
@@ -154,7 +158,7 @@ public class Carriage extends SubsystemBase {
       if((minV != minVel)) { pidcontroller.setSmartMotionMinOutputVelocity(minV, slot); minVel = minV; }
       if((maxA != maxAcc)) { pidcontroller.setSmartMotionMaxAccel(maxA, slot); maxAcc = maxA; }
       if((allE != allowedErr)) { pidcontroller.setSmartMotionAllowedClosedLoopError(allE, slot); allowedErr = allE; }
-      m_driver.burnFlash();
+       
     }
 
     private final void initCoefficients(PIDCoefficients k) {
@@ -182,7 +186,7 @@ public class Carriage extends SubsystemBase {
       pidcontroller.setIZone(kIz);
       pidcontroller.setFF(kFF);
       pidcontroller.setOutputRange(kMinOutput, kMaxOutput);
-      m_driver.burnFlash();
+       
     }
 
     private final void setSmartMotion(int smartMotionSlot) {
@@ -191,7 +195,7 @@ public class Carriage extends SubsystemBase {
       pidcontroller.setSmartMotionMinOutputVelocity(minVel, slot);
       pidcontroller.setSmartMotionMaxAccel(maxAcc, slot);
       pidcontroller.setSmartMotionAllowedClosedLoopError(allowedErr, slot);
-      m_driver.burnFlash();
+       
     }
 
     private final void initSmartdashboard() {
@@ -399,7 +403,7 @@ public class Carriage extends SubsystemBase {
   }
 
   public CommandBase rotate(double angle, Component component) {
-    return this.runEnd(() -> component.moveToAngle(angle), () -> component.move(0));
+    return this.runEnd(() -> {if(component.brakeState()) {component.coast();} component.moveToAngle(angle);}, () -> {component.m_driver.stopMotor(); component.brake();});
   }
   
   /**

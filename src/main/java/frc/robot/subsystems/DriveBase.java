@@ -16,11 +16,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -75,7 +77,9 @@ public class DriveBase extends SubsystemBase {
   private final DigitalInput m_limit = new DigitalInput(LIMIT_CH);
 
   // Gyro
-  private final AnalogGyro m_gyro = new AnalogGyro(0);
+  // This gyro is used at autonomous for the horizontal axis
+  private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(Port.kOnboardCS0);
+  // This gyro is used at charge station balance, etc.
   //private final MPU6050 mpu = new MPU6050();
   
   // Encoders
@@ -85,7 +89,7 @@ public class DriveBase extends SubsystemBase {
   private final DifferentialDrive m_drive;
 
   // Odometry and Kinematics
-  private final DifferentialDriveOdometry m_odometry;
+  private final DifferentialDriveOdometry m_hOdometry;
   private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
 
   /**Constructor. Creates new drive base object. */
@@ -105,12 +109,12 @@ public class DriveBase extends SubsystemBase {
     m_shifter.set(Value.kForward);
 
     // Construct odometry object
-    m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+    m_hOdometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }
 
   public void setSpeeds(DifferentialDriveWheelSpeeds speeds, boolean isTest) {
     if (isTest) {
-      m_drive.tankDrive(speeds.leftMetersPerSecond, speeds.rightMetersPerSecond);
+      m_drive.tankDrive(speeds.leftMetersPerSecond / SPEED, speeds.rightMetersPerSecond / SPEED);
     }
     final double leftFeedfoward = m_feedforward.calculate(speeds.leftMetersPerSecond);
     final double rightFeedfoward = m_feedforward.calculate(speeds.rightMetersPerSecond);
@@ -122,9 +126,20 @@ public class DriveBase extends SubsystemBase {
     m_rightMotors.setVoltage(rightOutput + rightFeedfoward);
   }
   
+  public void setSpeeds(DifferentialDriveWheelSpeeds speeds) {
+    final double leftFeedfoward = m_feedforward.calculate(speeds.leftMetersPerSecond);
+    final double rightFeedfoward = m_feedforward.calculate(speeds.rightMetersPerSecond);
+
+    final double leftOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), speeds.leftMetersPerSecond);
+    final double rightOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), speeds.rightMetersPerSecond);
+
+    m_leftMotors.setVoltage(leftOutput + leftFeedfoward);
+    m_rightMotors.setVoltage(rightOutput + rightFeedfoward);
+  }
+
   public void drive(double speed, double rotation) {
     var wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(speed, 0.0, rotation));
-    setSpeeds(wheelSpeeds, false);
+    setSpeeds(wheelSpeeds);
   }
 
   public void drive(double speed, double rotation, boolean isTest) {
@@ -149,7 +164,7 @@ public class DriveBase extends SubsystemBase {
     fwdController.close(); // Can i even do this? is this right? maybe just allocate at the beginning i dont know.
     rotController.close();
     
-    m_drive.arcadeDrive(fwdOutput + ff, rotOutput);
+    m_drive.arcadeDrive(fwdOutput / 12.0 + ff, rotOutput / 12.0);
   }
 
   public void tankDrive(double left, double right) {
@@ -158,6 +173,13 @@ public class DriveBase extends SubsystemBase {
 
   public void curveDrive(double speed, double curve) {
     m_drive.curvatureDrive(speed, curve, false);
+  }
+
+  public void balance() {
+    var pid = new PIDController(0.8, 0, 0);
+    double s = pid.calculate(m_gyro.getAngle(), 0);
+    pid.close();
+    arcadeDrive(s, 0);
   }
 
   public void setMaxOutput(double maxOutput) {
@@ -194,11 +216,19 @@ public class DriveBase extends SubsystemBase {
   }
 
   public Pose2d getPose2d() {
-    return m_odometry.getPoseMeters();
+    return m_hOdometry.getPoseMeters();
   } 
+
+  public void resetPose(Pose2d pose) {
+    m_hOdometry.resetPosition(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance(), pose);
+  }
 
   public double getHeading() {
     return m_gyro.getRotation2d().getDegrees();
+  }
+
+  public DifferentialDriveKinematics kinematics() {
+    return m_kinematics;
   }
 
   public CommandBase toggleMode() {
@@ -218,6 +248,10 @@ public class DriveBase extends SubsystemBase {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return this.runOnce(() -> m_shifter.toggle());
+  }
+
+  public CommandBase climb() {
+    return this.run(this::balance);
   }
   
   /**
@@ -264,7 +298,7 @@ public class DriveBase extends SubsystemBase {
     // This method will be called once per scheduler run
 
     // Update Odometry Pose
-    m_odometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+    m_hOdometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }
 
   @Override
@@ -274,8 +308,8 @@ public class DriveBase extends SubsystemBase {
     m_leftMotors.set(0.5);
     m_rightMotors.set(0.2);
 
-    m_odometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+    m_hOdometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
 
-    System.out.println(m_odometry.getPoseMeters());
+    System.out.println(m_hOdometry.getPoseMeters());
   }
 }

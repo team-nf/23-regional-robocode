@@ -36,13 +36,14 @@ public class Turret extends SubsystemBase {
   private final RelativeEncoder m_encoder = m_driver.getEncoder(Type.kHallSensor, (int)(ENCODER_CPR));  
   // PIDController
   private final SparkMaxPIDController pidcontroller = m_driver.getPIDController();
-  private final PIDController secondarypid = new PIDController(1, 0, 0);
+  private final PIDController secondarypid = new PIDController(COEFF.P, COEFF.I, COEFF.D);
 
   // Limit switch
   private final DigitalInput m_limit = new DigitalInput(LIMIT_CH);
 
   /** Creates a new Turret. */
   public Turret() {
+    m_driver.setInverted(true); 
     m_encoder.setPositionConversionFactor(DISTANCE_PER_REV);
     m_encoder.setVelocityConversionFactor(DISTANCE_PER_REV);
     this.reset();
@@ -110,6 +111,7 @@ public class Turret extends SubsystemBase {
     pidcontroller.setP(kP, COEFF.PID_SLOT);
     pidcontroller.setI(kI, COEFF.PID_SLOT);
     pidcontroller.setD(kD, COEFF.PID_SLOT);
+    secondarypid.setPID(kP, kI, kD);
     pidcontroller.setIZone(kIz, COEFF.PID_SLOT);
     pidcontroller.setFF(kFF, COEFF.PID_SLOT);
     pidcontroller.setOutputRange(kMinOutput, kMaxOutput, COEFF.PID_SLOT);
@@ -138,9 +140,9 @@ public class Turret extends SubsystemBase {
     double allE = SmartDashboard.getNumber("Turret/allowedErr", 0);
     
     // if PID coefficients on SmartDashboard have changed, write new values to controller
-    if((p != kP)) { pidcontroller.setP(p); kP = p; }
-    if((i != kI)) { pidcontroller.setI(i); kI = i; }
-    if((d != kD)) { pidcontroller.setD(d); kD = d; }
+    if((p != kP)) { pidcontroller.setP(p); secondarypid.setP(p); kP = p; }
+    if((i != kI)) { pidcontroller.setI(i); secondarypid.setI(i); kI = i; }
+    if((d != kD)) { pidcontroller.setD(d); secondarypid.setD(d); kD = d; }
     if((iz != kIz)) { pidcontroller.setIZone(iz); kIz = iz; }
     if((ff != kFF)) { pidcontroller.setFF(ff); kFF = ff; }
     if((s != kS)) { kS = s; }
@@ -155,7 +157,7 @@ public class Turret extends SubsystemBase {
     if((minV != minVel)) { pidcontroller.setSmartMotionMinOutputVelocity(minV, COEFF.PID_SLOT); minVel = minV; }
     if((maxA != maxAcc)) { pidcontroller.setSmartMotionMaxAccel(maxA, COEFF.PID_SLOT); maxAcc = maxA; }
     if((allE != allowedErr)) { pidcontroller.setSmartMotionAllowedClosedLoopError(allE, COEFF.PID_SLOT); allowedErr = allE; }
-    m_driver.burnFlash();
+     
 
     SmartDashboard.putNumber("Turret/position", position());
   } 
@@ -175,9 +177,12 @@ public class Turret extends SubsystemBase {
 
   } 
 
-  public void rotateToAngle(double angle) {
-    double ff = new SimpleMotorFeedforward(kS, kV).calculate(DISTANCE_PER_REV);
-    pidcontroller.setReference(angle, ControlType.kPosition, COEFF.PID_SLOT, COEFF.FF );
+  public void rotateToAngle(TrapezoidProfile.State state) {
+    double ff = new SimpleMotorFeedforward(kS, kV, kA).calculate(state.velocity);
+    pidcontroller.setFF(ff, COEFF.PID_SLOT);
+    pidcontroller.setReference(state.position, ControlType.kPosition, COEFF.PID_SLOT);
+    //double pid = secondarypid.calculate(position(), angle);
+    //m_driver.setVoltage(pid + ff);
   }
 
    /**
@@ -207,12 +212,13 @@ public class Turret extends SubsystemBase {
   }
 
   public CommandBase rotate(double angle) {
-    return new TrapezoidProfileCommand(
-      new TrapezoidProfile(new TrapezoidProfile.Constraints(COEFF.MAX_VEL, COEFF.MAX_ACC),
-      new TrapezoidProfile.State(angle, 0),
-      new TrapezoidProfile.State(position(), velocity())), 
-      state -> this.rotateToAngle(state.position), 
-      this);
+    return this.runOnce(() -> pidcontroller.setReference(angle, ControlType.kPosition, COEFF.PID_SLOT));
+    //return new TrapezoidProfileCommand(
+    //  new TrapezoidProfile(new TrapezoidProfile.Constraints(COEFF.MAX_VEL, COEFF.MAX_ACC),
+    //  new TrapezoidProfile.State(angle, 0),
+    //  new TrapezoidProfile.State(position(), velocity())), 
+    //  state -> this.rotateToAngle(state), 
+    //  this);
   }
 
   public CommandBase power(double speed) {

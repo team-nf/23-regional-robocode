@@ -8,6 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.AutoPickup;
+import frc.robot.subsystems.DriveBase;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -18,6 +23,25 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static class AutonomousConstants {
+    public static enum Auto {
+      SIMPLE,
+      CHARGED;
+
+      public static enum Position {
+        TOP,
+        CENTER,
+        BOTTOM
+      }
+      private static final Position START_POSITION = Position.TOP;
+      public Position pos() {
+        return START_POSITION;
+      }
+    } 
+    public static final Auto AUTO = Auto.SIMPLE;
+
+    public static final HashMap<String, Command> eventMap = new HashMap<>();
+  }
   public static class OperatorConstants {
     // Controller Ports
     public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -26,6 +50,10 @@ public final class Constants {
     public static final int DRIVE_MODE = 0;
     public static final boolean TEST = true;
     public static final boolean OPERATING = false;
+    
+    //*Canceled. The SmartDashboard tab on Shuffleboard is used for robot configurations. */
+    public static final ShuffleboardTab CONFIG_DASHBOARD = Shuffleboard.getTab("Configuration"); 
+    public static final ShuffleboardTab DRIVER_DASHBOARD = Shuffleboard.getTab("CompetitionDashboard");
   }
   public static class CAN {
     public static final int PDH_ID = 1;
@@ -40,6 +68,7 @@ public final class Constants {
         put("p", 1.0);
         put("i", 0.0);
         put("d", 0.0);
+        put("maxAcc", 3.0);
         put("maxOut", 1.0);
         put("minOut", -1.0);
         put("s", 1.0);
@@ -51,66 +80,80 @@ public final class Constants {
       new HashMap<String, Double>() {
         {
         put("slot", 1.0);
-        put("p", 0.3);
+        put("p", 0.0030479);
         put("i", 0.0);
-        put("d", 0.05);
+        put("d", 0.00095926);
         put("iz", 0.0);
-        put("ff", 1.50);
-        put("maxOut", 1.0);
-        put("minOut", -1.0);
+        put("ff", 0.14);
+        put("maxOut", 0.2);
+        put("minOut", -0.2);
         put("rpm", 330.0);
-        put("maxVel", 18.0);
-        put("minVel", -18.0);
+        put("maxVel", 30.0);
+        put("minVel", -30.0);
         put("maxAcc", 12.0);
-        put("allowedErr", 0.4);
-        put("s", 0.1);
-        put("g", 0.0);
-        put("v", 0.25);
-        put("a", 0.0);
+        put("allowedErr", 0.52375);
+        put("s", 0.063526);
+        put("v", 0.5592);
+        put("a", 0.1222);
         }
       }
     ),
     Arm(
       new HashMap<String, Double>() {
         {
-        put("p", 3.0);
-        put("i", 1e-2);
-        put("d", 0.5);
+        put("p", 0.0051415);
+        put("i", 0.0);
+        put("d", 0.001146);
         put("iz", 0.0);
-        put("ff", 0.000156);
-        put("maxOut", 1.0);
-        put("minOut", -1.0);
+        put("ff", 0.0);
+        put("maxOut", 0.4);
+        put("minOut", -0.4);
         put("rpm", 240.0);
         put("maxVel", 180.0);
         put("minVel", -180.0);
         put("maxAcc", 10.0);
-        put("allowedErr", 0.1);
-        put("s", 1.25);
-        put("g", 1.75);
-        put("v", 1.95);
-        put("a", 0.1);
+        put("allowedErr", 0.125);
+        put("s", 0.10922);
+        put("g", 0.0089398);
+        put("v", 0.37174);
+        put("a", 0.014984);
         }
       }
     ),
     Wrist(
       new HashMap<String, Double>() {
         {
-        put("p", 3.0);
-        put("i", 1e-2);
-        put("d", 0.5);
-        put("iz", 0.0);
-        put("ff", 0.000156);
-        put("maxOut", 1.0);
-        put("minOut", -1.0);
-        put("rpm", 240.0);
-        put("maxVel", 180.0);
-        put("minVel", -180.0);
-        put("maxAcc", 10.0);
-        put("allowedErr", 0.1);
-        put("s", 1.25);
-        put("g", 1.75);
-        put("v", 1.95);
-        put("a", 0.1);
+          put("p", 0.0051415);
+          put("i", 0.0);
+          put("d", 0.001146);
+          put("iz", 0.0);
+          put("ff", 0.0);
+          put("maxOut", 0.4);
+          put("minOut", -0.4);
+          put("rpm", 240.0);
+          put("maxVel", 180.0);
+          put("minVel", -180.0);
+          put("maxAcc", 10.0);
+          put("allowedErr", 0.125);
+          put("s", 0.10922);
+          put("g", 0.0089398);
+          put("v", 0.37174);
+          put("a", 0.014984);
+          }
+      }
+    ),
+    Lift(
+      new HashMap<String, Double>() {
+        {
+          put("g", -0.066316);
+          put("s", 0.29854);
+          put("v", 1.0);
+          put("a", 5.2737);
+          put("p", 3.2);
+          put("d", 1.98);
+          put("allowedErr", 0.085);
+          put("maxOut", 0.3);
+          put("minOut", -0.3);
         }
       }
     );

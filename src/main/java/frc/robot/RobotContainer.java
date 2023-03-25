@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import frc.robot.Constants.DriveBaseConstants;
 import frc.robot.Constants.OperatorConstants;
-
+import frc.robot.Constants.AutonomousConstants.Auto;
+import frc.robot.Constants.AutonomousConstants;
+import frc.robot.commands.AutoPickup;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
 import frc.robot.commands.PRotate;
@@ -15,11 +18,24 @@ import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Lift;
 import frc.robot.subsystems.Carriage;
 import frc.robot.subsystems.Gripper;
-
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.networktables.DoubleArrayEntry;
+import edu.wpi.first.networktables.IntegerEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.RamseteAutoBuilder;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -28,8 +44,26 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  NetworkTableInstance ntInst = NetworkTableInstance.getDefault();
+  NetworkTable optable = ntInst.getTable("ShuffleBoard/CompetitionDashboard");
+  IntegerEntry ledEntry = ntInst.getTable("datatable").getIntegerTopic("LED").getEntry(0);
+
+  double[] apriltag = {0.0, 0.0, 0.0, 0.0, 0.0};
+  double[] reflectivetape = {0.0, 0.0, 0.0, 0.0, 0.0};
+  DoubleArrayEntry aprilEntry = ntInst.getTable("datatable").getDoubleArrayTopic("AprilTag").getEntry(apriltag);
+  DoubleArrayEntry tapeEntry = ntInst.getTable("database").getDoubleArrayTopic("ReflectiveTape").getEntry(reflectivetape);
+
   // The robot's subsystems are defined here...
   private final DriveBase m_driveBase = new DriveBase();
+  private final RamseteAutoBuilder autoBuilder = new RamseteAutoBuilder(
+    m_driveBase::getPose2d,
+    m_driveBase::resetPose,
+    new RamseteController(2, 0.7),
+    m_driveBase.kinematics(),
+    (Double leftOutput, Double rightOutput) -> {m_driveBase.setSpeeds(new DifferentialDriveWheelSpeeds(leftOutput, rightOutput));},
+    AutonomousConstants.eventMap,
+    m_driveBase
+  );
   private final Turret m_turret = new Turret();
   private final Lift m_lift = new Lift();
   private final Carriage m_carriage = new Carriage();
@@ -45,11 +79,27 @@ public class RobotContainer {
   // The robot's commands are defined here
   private final Drive m_driveCommand = new Drive(m_driveBase, m_driverController);
 
+  // Set the Event Mappings of the robot.
+  {AutonomousConstants.eventMap.put("pickup", new AutoPickup());
+  AutonomousConstants.eventMap.put("shifter", m_driveBase.shiftGear());}
+
+  // Smart Dashboard
+  private final SendableChooser<Command> m_autoSelector = new SendableChooser<>();
+  {
+    //*0 - simple center, 1 - charger station center, 2 - simple top */
+    m_autoSelector.setDefaultOption("Set From Code", getAutonomousCommand());
+    m_autoSelector.addOption("Top Simple", getAutonomousCommand(2));
+    m_autoSelector.addOption("Top Charge Station", getAutonomousCommand(3));
+    m_autoSelector.addOption("Center Simple", getAutonomousCommand(0));
+  }
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
     m_driveBase.setDefaultCommand(m_driveCommand);
+    OperatorConstants.DRIVER_DASHBOARD.add("Autonomous Route", m_autoSelector).withWidget(BuiltInWidgets.kComboBoxChooser);
+    ledEntry.set(1);
   }
 
   /**
@@ -66,7 +116,7 @@ public class RobotContainer {
 
     // Drive Base
     // Schedule command to shift gear back to default when condition changes to `true` -when not moving and shifter is not default-
-    new Trigger(m_driveBase::motion).negate().and(m_driveBase::shifterCondition).onFalse(m_driveBase.shiftGear());
+    //new Trigger(m_driveBase::motion).negate().and(m_driveBase::shifterCondition).onFalse(m_driveBase.shiftGear());
     
     // Turret
     new Trigger(m_turret::limit).onTrue(m_turret.brake());
@@ -84,16 +134,21 @@ public class RobotContainer {
     m_driverController.b().whileTrue(m_driveBase.shiftGear());
     // Switch Driving mode
     m_driverController.a().onTrue(m_driveBase.toggleMode());
+    // LEDs
+    m_driverController.leftBumper().whileTrue(Commands.startEnd(() -> ledEntry.set(2), () -> ledEntry.set(1)));
+    m_driverController.rightBumper().whileTrue(Commands.startEnd(() -> ledEntry.set(3), () -> ledEntry.set(1)));
+    m_driverController.leftBumper().and(m_driverController.rightBumper()).debounce(.3).onTrue(Commands.runOnce(() -> ledEntry.set(0)));
 
     // Turret
     m_operatorController.a().whileTrue(m_turret.power(0.5));
-    m_operatorController.y().whileTrue(m_turret.rotate(30));  
+    m_operatorController.y().onTrue(m_turret.rotate(90));
     m_operatorController.b().whileTrue(m_turret.power(0));
     m_operatorController.axisGreaterThan(0, 0.3).whileTrue(new TRotate(m_turret, m_operatorController, 1).andThen(m_turret.brake()));
     m_operatorController.axisLessThan(0, -0.3).whileTrue(new TRotate(m_turret, m_operatorController, -1).andThen(m_turret.brake()));
 
     // Carriage
     m_operatorController.x().onTrue(m_carriage.rotate(90, m_carriage.arm()));
+    m_operatorController.leftStick().whileTrue(m_carriage.rotate(160, m_carriage.arm()));
 
     // Gripper
     m_operatorController.leftTrigger().onTrue(m_gripper.grip());
@@ -109,6 +164,42 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_driveBase);
+    switch (AutonomousConstants.AUTO) {
+      case SIMPLE:
+      switch (AutonomousConstants.AUTO.pos()) {
+        case TOP: return autoBuilder.fullAuto(Autos.simpleTop);
+        case CENTER: return autoBuilder.fullAuto(Autos.simpleCenter);
+        case BOTTOM:
+      }
+      case CHARGED:
+        switch (AutonomousConstants.AUTO.pos()) {
+          case TOP: return autoBuilder.fullAuto(Autos.chargedTop);
+          case CENTER: return autoBuilder.fullAuto(Autos.chargedCenter);
+          case BOTTOM:
+        }
+      default:
+        return getAutonomousCommand();
+    }
+  }
+
+  private Command getAutonomousCommand(int pathNumber) {
+    switch (pathNumber) {
+      case 0:
+        return autoBuilder.fullAuto(Autos.simpleCenter);
+      case 1:
+        return autoBuilder.fullAuto(Autos.chargedCenter);
+      case 2:
+        return autoBuilder.fullAuto(Autos.simpleTop);
+      case 3:
+        return autoBuilder.fullAuto(Autos.chargedTop);
+      case 4:
+        return null;
+      case 5:
+        return null;
+      case 6:
+        return null;
+      default:
+        return getAutonomousCommand();
+    }
   }
 }

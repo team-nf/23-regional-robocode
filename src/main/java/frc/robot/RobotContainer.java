@@ -141,9 +141,10 @@ public class RobotContainer {
     // Brake
     m_driverController.x().whileTrue(m_driveBase.brake());
     // LEDs
-    m_driverController.leftBumper().whileTrue(Commands.startEnd(() -> ledEntry.set(2), () -> ledEntry.set(1)));
-    m_driverController.rightBumper().whileTrue(Commands.startEnd(() -> ledEntry.set(3), () -> ledEntry.set(1)));
-    m_driverController.leftBumper().and(m_driverController.rightBumper()).debounce(.3).onTrue(Commands.runOnce(() -> ledEntry.set(0)));
+    m_driverController.leftBumper().whileTrue(m_driveBase.low());
+    m_driverController.rightBumper().whileTrue(m_driveBase.lowrev());
+    m_driverController.leftTrigger().whileTrue(m_driveBase.high());
+    m_driverController.rightTrigger().whileTrue(m_driveBase.highrev());
 
     // Turret
     m_operatorController.b().whileTrue(m_turret.power(0));

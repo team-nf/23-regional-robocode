@@ -36,8 +36,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.RamseteAutoBuilder;
+//import com.pathplanner.lib.auto.PIDConstants;
+//import com.pathplanner.lib.auto.RamseteAutoBuilder;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -57,15 +57,15 @@ public class RobotContainer {
 
   // The robot's subsystems are defined here...
   private final DriveBase m_driveBase = new DriveBase();
-  private final RamseteAutoBuilder autoBuilder = new RamseteAutoBuilder(
-    m_driveBase::getPose2d,
-    m_driveBase::resetPose,
-    new RamseteController(2, 0.7),
-    m_driveBase.kinematics(),
-    (Double leftOutput, Double rightOutput) -> {m_driveBase.setSpeeds(new DifferentialDriveWheelSpeeds(leftOutput, rightOutput));},
-    AutonomousConstants.eventMap,
-    m_driveBase
-  );
+  //private final RamseteAutoBuilder autoBuilder = new RamseteAutoBuilder(
+  //  m_driveBase::getPose2d,
+  //  m_driveBase::resetPose,
+  //  new RamseteController(2, 0.7),
+  //  m_driveBase.kinematics(),
+  //  (Double leftOutput, Double rightOutput) -> {m_driveBase.setSpeeds(new DifferentialDriveWheelSpeeds(leftOutput, rightOutput));},
+  //  AutonomousConstants.eventMap,
+  //  m_driveBase
+  //);
   private final Turret m_turret = new Turret();
   private final Lift m_lift = new Lift();
   private final Carriage m_carriage = new Carriage();
@@ -92,9 +92,9 @@ public class RobotContainer {
   {
     //*0 - simple center, 1 - charger station center, 2 - simple top */
     m_autoSelector.setDefaultOption("Set From Code", getAutonomousCommand());
-    m_autoSelector.addOption("Top Simple", getAutonomousCommand(2));
-    m_autoSelector.addOption("Top Charge Station", getAutonomousCommand(3));
-    m_autoSelector.addOption("Center Simple", getAutonomousCommand(0));
+    //m_autoSelector.addOption("Top Simple", getAutonomousCommand(2));
+    //m_autoSelector.addOption("Top Charge Station", getAutonomousCommand(3));
+    //m_autoSelector.addOption("Center Simple", getAutonomousCommand(0));
   }
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -176,44 +176,47 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+  //public Command getAutonomousCommand() {
+  //  // An example command will be run in autonomous
+  //  switch (AutonomousConstants.AUTO) {
+  //    case SIMPLE:
+  //    switch (AutonomousConstants.AUTO.pos()) {
+  //      case TOP: return autoBuilder.fullAuto(Autos.simpleTop);
+  //      case CENTER: return autoBuilder.fullAuto(Autos.simpleCenter);
+  //      case BOTTOM:
+  //    }
+  //    case CHARGED:
+  //      switch (AutonomousConstants.AUTO.pos()) {
+  //        case TOP: return autoBuilder.fullAuto(Autos.chargedTop);
+  //        case CENTER: return autoBuilder.fullAuto(Autos.chargedCenter);
+  //        case BOTTOM:
+  //      }
+  //    default:
+  //      return getAutonomousCommand();
+  //  }
+  //}
+//
+  //private Command getAutonomousCommand(int pathNumber) {
+  //  switch (pathNumber) {
+  //    case 0:
+  //      return autoBuilder.fullAuto(Autos.simpleCenter);
+  //    case 1:
+  //      return autoBuilder.fullAuto(Autos.chargedCenter);
+  //    case 2:
+  //      return autoBuilder.fullAuto(Autos.simpleTop);
+  //    case 3:
+  //      return autoBuilder.fullAuto(Autos.chargedTop);
+  //    case 4:
+  //      return null;
+  //    case 5:
+  //      return null;
+  //    case 6:
+  //      return null;
+  //    default:
+  //      return getAutonomousCommand();
+  //  }
+  //}
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    switch (AutonomousConstants.AUTO) {
-      case SIMPLE:
-      switch (AutonomousConstants.AUTO.pos()) {
-        case TOP: return autoBuilder.fullAuto(Autos.simpleTop);
-        case CENTER: return autoBuilder.fullAuto(Autos.simpleCenter);
-        case BOTTOM:
-      }
-      case CHARGED:
-        switch (AutonomousConstants.AUTO.pos()) {
-          case TOP: return autoBuilder.fullAuto(Autos.chargedTop);
-          case CENTER: return autoBuilder.fullAuto(Autos.chargedCenter);
-          case BOTTOM:
-        }
-      default:
-        return getAutonomousCommand();
-    }
-  }
-
-  private Command getAutonomousCommand(int pathNumber) {
-    switch (pathNumber) {
-      case 0:
-        return autoBuilder.fullAuto(Autos.simpleCenter);
-      case 1:
-        return autoBuilder.fullAuto(Autos.chargedCenter);
-      case 2:
-        return autoBuilder.fullAuto(Autos.simpleTop);
-      case 3:
-        return autoBuilder.fullAuto(Autos.chargedTop);
-      case 4:
-        return null;
-      case 5:
-        return null;
-      case 6:
-        return null;
-      default:
-        return getAutonomousCommand();
-    }
+    return null;
   }
 }

@@ -245,6 +245,22 @@ public class DriveBase extends SubsystemBase {
     return this.run(() -> {m_leftMotors.stopMotor(); m_rightMotors.stopMotor();});
   }
 
+  public CommandBase high() {
+    return this.runEnd(() -> {m_leftMotors.setVoltage(10); m_rightMotors.setVoltage(10);}, () -> {m_rightMotors.stopMotor(); m_leftMotors.stopMotor();});
+  }
+
+  public CommandBase low() {
+    return this.runEnd(() -> {m_leftMotors.setVoltage(7); m_rightMotors.setVoltage(7);}, () -> {m_rightMotors.stopMotor(); m_leftMotors.stopMotor();});
+  }
+
+  public CommandBase highrev() {
+    return this.runEnd(() -> {m_leftMotors.setVoltage(-10); m_rightMotors.setVoltage(-10);}, () -> {m_rightMotors.stopMotor(); m_leftMotors.stopMotor();});
+  }
+
+  public CommandBase lowrev()  {
+    return this.runEnd(() -> {m_leftMotors.setVoltage(-7); m_rightMotors.setVoltage(-7);}, () -> {m_rightMotors.stopMotor(); m_leftMotors.stopMotor();});
+  }
+
   /**
    * Command constructer method.
    *

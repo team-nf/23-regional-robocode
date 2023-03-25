@@ -217,6 +217,6 @@ public class RobotContainer {
   //  }
   //}
   public Command getAutonomousCommand() {
-    return Commands.startEnd(() -> m_driveBase.tankDrive(0.25, 0.25),() -> m_driveBase.brake(), m_driveBase).withTimeout(2.15);
+    return Commands.startEnd(() -> m_driveBase.tankDrive(0.7, 0.7),() -> m_driveBase.brake(), m_driveBase).withTimeout(2.15);
   }
 }

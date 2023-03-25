@@ -178,6 +178,10 @@ public class Turret extends SubsystemBase {
   } 
 
   public void rotateToAngle(TrapezoidProfile.State state) {
+    if (limit()) {
+      rotateToAngle(new TrapezoidProfile.State(-position(), 0));
+      return;
+    }
     double ff = new SimpleMotorFeedforward(kS, kV, kA).calculate(state.velocity);
     pidcontroller.setFF(ff, COEFF.PID_SLOT);
     pidcontroller.setReference(state.position, ControlType.kPosition, COEFF.PID_SLOT);
@@ -191,6 +195,10 @@ public class Turret extends SubsystemBase {
    * @param state The turret state.
    */
   public void rotateToState(TrapezoidProfile.State state) {
+    if (limit()) {
+      rotateToAngle(new TrapezoidProfile.State(0, 0));
+      return;
+    }
     double ff = new SimpleMotorFeedforward(kS, kV).calculate(state.velocity);
     pidcontroller.setReference(state.position, ControlType.kPosition, 0, ff);
   }
@@ -221,6 +229,10 @@ public class Turret extends SubsystemBase {
     //  this);
   }
 
+  public void simpleRotate(double angle) {
+    pidcontroller.setReference(angle, ControlType.kPosition, COEFF.PID_SLOT);
+  }
+
   public CommandBase power(double speed) {
     return this.startEnd(() -> m_driver.set(speed), () -> m_driver.set(0));
   }
@@ -249,14 +261,6 @@ public class Turret extends SubsystemBase {
   public boolean limit() {
     if(m_limit.get()) {return true;}
     return false;
-  }
-
-  /**
-   * @return true if motor is free to spin.
-   */
-  public boolean ok() {
-    if(m_limit.get()) {return false;}
-    return true;
   }
 
   public CommandBase test() {return startEnd(() -> System.out.println(m_encoder.getPosition()), () -> System.out.println(m_encoder.getPosition()));}

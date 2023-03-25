@@ -113,6 +113,14 @@ public class Carriage extends SubsystemBase {
       pidcontroller.setReference(speed, ControlType.kSmartVelocity);
     }
     
+    public void power(double speed) {
+      m_driver.set(speed);
+    }
+    
+    public void stopMotor() {
+      m_driver.stopMotor();
+    }
+
     public void brake() {m_brake.set(Value.kForward);}
 
     public void coast() {m_brake.set(Value.kReverse);}    
@@ -429,6 +437,14 @@ public class Carriage extends SubsystemBase {
   @Deprecated(forRemoval=false)
   public CommandBase rotate(double angle, ProfiledComponent component, int controllerType) {
     return this.run(() -> component.setGoal(angle));
+  }
+
+  public CommandBase quickMovement(double x) {
+    return this.startEnd(() -> {arm().power(-0.3 * x); wrist().power(0.3 * x);}, () -> {arm().stopMotor(); wrist().stopMotor();});
+  }
+  
+  public CommandBase moveGripper(double x) {
+    return this.startEnd(() -> {wrist().power(0.2 * x);}, () -> wrist().power(0.2 * x));
   }
 
   public CommandBase update(Component component) {

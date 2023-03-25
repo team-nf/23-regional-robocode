@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.AutoPickup;
-import frc.robot.subsystems.DriveBase;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -71,8 +69,8 @@ public final class Constants {
         put("maxAcc", 3.0);
         put("maxOut", 1.0);
         put("minOut", -1.0);
-        put("s", 1.0);
-        put("v", 1.0);
+        put("s", 0.1);
+        put("v", 0.5);
         }
       }
     ),

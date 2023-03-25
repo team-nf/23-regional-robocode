@@ -34,6 +34,10 @@ public class Gripper extends SubsystemBase {
     m_grip.set(Value.kReverse);
   }
 
+  public void toggle() {
+    m_grip.toggle();
+  }
+
   /**
    * Grip with pneumatics.
    * 

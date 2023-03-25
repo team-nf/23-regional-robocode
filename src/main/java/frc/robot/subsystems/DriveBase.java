@@ -97,7 +97,8 @@ public class DriveBase extends SubsystemBase {
     // Define motor driver groups and invert right side.
     m_leftMotors = new MotorControllerGroup(m_leftMaster, m_leftFollower, m_leftThird);
     m_rightMotors = new MotorControllerGroup(m_rightMaster, m_rightFollower, m_rightThird);
-    m_rightMotors.setInverted(true);
+    m_leftMotors.setInverted(LEFT_MOTORS_REVERSED);
+    m_rightMotors.setInverted(RIGHT_MOTORS_REVERSED);
 
     m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
@@ -232,11 +233,16 @@ public class DriveBase extends SubsystemBase {
   }
 
   public CommandBase toggleMode() {
+    if(kDriveMode.value == 5) {return this.runOnce(() -> kDriveMode = Mode.values()[0]);}
     return this.runOnce(() -> kDriveMode = Mode.values()[kDriveMode.value + 1]);
   }
 
   public CommandBase changeMode(int mode) {
     return this.runOnce(() -> setMode(mode)); 
+  }
+
+  public CommandBase brake() {
+    return this.run(() -> {m_leftMotors.stopMotor(); m_rightMotors.stopMotor();});
   }
 
   /**

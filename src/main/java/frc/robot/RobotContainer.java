@@ -12,6 +12,8 @@ import frc.robot.commands.AutoPickup;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Drive;
 import frc.robot.commands.PRotate;
+import frc.robot.commands.Score;
+import frc.robot.commands.StartScore;
 import frc.robot.commands.TRotate;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.Turret;
@@ -81,7 +83,9 @@ public class RobotContainer {
 
   // Set the Event Mappings of the robot.
   {AutonomousConstants.eventMap.put("pickup", new AutoPickup());
-  AutonomousConstants.eventMap.put("shifter", m_driveBase.shiftGear());}
+  AutonomousConstants.eventMap.put("start", new StartScore(m_turret, m_carriage, m_gripper));
+  AutonomousConstants.eventMap.put("shifter", m_driveBase.shiftGear());
+  AutonomousConstants.eventMap.put("point", new Score());}
 
   // Smart Dashboard
   private final SendableChooser<Command> m_autoSelector = new SendableChooser<>();
@@ -134,25 +138,35 @@ public class RobotContainer {
     m_driverController.b().whileTrue(m_driveBase.shiftGear());
     // Switch Driving mode
     m_driverController.a().onTrue(m_driveBase.toggleMode());
+    // Brake
+    m_driverController.x().whileTrue(m_driveBase.brake());
     // LEDs
     m_driverController.leftBumper().whileTrue(Commands.startEnd(() -> ledEntry.set(2), () -> ledEntry.set(1)));
     m_driverController.rightBumper().whileTrue(Commands.startEnd(() -> ledEntry.set(3), () -> ledEntry.set(1)));
     m_driverController.leftBumper().and(m_driverController.rightBumper()).debounce(.3).onTrue(Commands.runOnce(() -> ledEntry.set(0)));
 
     // Turret
-    m_operatorController.a().whileTrue(m_turret.power(0.5));
-    m_operatorController.y().onTrue(m_turret.rotate(90));
     m_operatorController.b().whileTrue(m_turret.power(0));
     m_operatorController.axisGreaterThan(0, 0.3).whileTrue(new TRotate(m_turret, m_operatorController, 1).andThen(m_turret.brake()));
     m_operatorController.axisLessThan(0, -0.3).whileTrue(new TRotate(m_turret, m_operatorController, -1).andThen(m_turret.brake()));
+    m_operatorController.axisGreaterThan(1, 0.5).whileTrue(m_turret.power(-0.2));
+    m_operatorController.axisLessThan(1, -0.5).whileTrue(m_turret.power(0.2));
+
+    // Lift
+    m_operatorController.leftTrigger().whileTrue(m_lift.lift());
+    m_operatorController.rightTrigger().whileTrue(m_lift.lift());
 
     // Carriage
-    m_operatorController.x().onTrue(m_carriage.rotate(90, m_carriage.arm()));
-    m_operatorController.leftStick().whileTrue(m_carriage.rotate(160, m_carriage.arm()));
+    //m_operatorController.x().onTrue(m_carriage.rotate(90, m_carriage.arm()));
+    //m_operatorController.leftStick().whileTrue(m_carriage.rotate(160, m_carriage.arm()));
+    m_operatorController.axisGreaterThan(2, 0.2).whileTrue(m_carriage.quickMovement(-1));
+    m_operatorController.axisLessThan(2, -0.2).whileTrue(m_carriage.quickMovement(1));
+    m_operatorController.a().whileTrue(m_carriage.moveGripper(-1));
+    m_operatorController.y().whileTrue(m_carriage.moveGripper(1));
 
     // Gripper
-    m_operatorController.leftTrigger().onTrue(m_gripper.grip());
-    m_operatorController.rightTrigger().onTrue(m_gripper.shoot().withTimeout(0.5));
+    m_operatorController.leftBumper().toggleOnTrue(m_gripper.grip());
+    m_operatorController.x().onTrue(m_gripper.shoot().withTimeout(0.5));
     m_operatorController.rightBumper().whileTrue(m_gripper.intake());
 
   } 

@@ -92,7 +92,7 @@ public class Drive extends CommandBase {
       }
       case 5:
       {
-        final var speed = -m_speedLimiter.calculate(m_controller.getLeftY()) * SPEED;
+        final var speed = m_speedLimiter.calculate(m_controller.getLeftTriggerAxis() - (m_controller.getRightTriggerAxis() * 2)) * SPEED;
         final var curve = -m_rotLimiter.calculate(m_controller.getRightX()) * MAX_ANGULAR_VELOCITY;
         m_driveBase.curveDrive(speed, curve);
       }

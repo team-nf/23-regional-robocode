@@ -39,6 +39,16 @@ public class Lift extends SubsystemBase {
     m_encoder.setPositionConversionFactor(DISTANCE_PER_COUNT);
   }
 
+  public CommandBase lift() {
+    if (m_topLimit.get()) {return run(() -> m_driver.stopMotor());}
+    return startEnd(() -> m_driver.set(0.2), () -> m_driver.stopMotor());
+  }
+
+  public CommandBase lower() {
+    if (m_bottomLimit.get()) {return run(() -> m_driver.stopMotor());}
+    return startEnd(() -> m_driver.set(-0.2), () -> m_driver.stopMotor());
+  }
+
   /**
    * In-line brake command factory
    * (I am thinking of maybe instead of a seperated command i can incorporate this into the lift command)

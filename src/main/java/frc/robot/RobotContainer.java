@@ -135,7 +135,7 @@ public class RobotContainer {
 
     // Drive Base
     // Schedule command to shift gears when the Xbox controller's B button is pressed, cancelling on release.
-    m_driverController.b().whileTrue(m_driveBase.shiftGear());
+    //m_driverController.b().whileTrue(m_driveBase.shiftGear());
     // Switch Driving mode
     m_driverController.a().onTrue(m_driveBase.toggleMode());
     // Brake
@@ -217,6 +217,6 @@ public class RobotContainer {
   //  }
   //}
   public Command getAutonomousCommand() {
-    return null;
+    return Commands.startEnd(() -> m_driveBase.tankDrive(0.25, 0.25),() -> m_driveBase.brake(), m_driveBase).withTimeout(2.15);
   }
 }

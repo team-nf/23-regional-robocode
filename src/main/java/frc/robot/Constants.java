@@ -69,8 +69,8 @@ public final class Constants {
         put("maxAcc", 3.0);
         put("maxOut", 1.0);
         put("minOut", -1.0);
-        put("s", 0.1);
-        put("v", 0.5);
+        put("s", 0.004);
+        put("v", 0.008);
         }
       }
     ),

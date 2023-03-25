@@ -56,7 +56,7 @@ public final class Constants {
   public static class CAN {
     public static final int PDH_ID = 1;
     public static final int REVPH = 1;
-    public static final int[] SPARK = {5, 2, 6, 7, 3, 4};
+    public static final int[] SPARK = {7, 4, 2, 6, 3, 5};
     public static final int[] VICTOR = {8, 9, 10, 11, 12, 13};
   }
   public static enum PIDCoefficients {
@@ -202,10 +202,10 @@ public final class Constants {
     public static final int LEFT_ENCODER_PORT_B = 1;
     public static final int RIGHT_ENCODER_PORT_A = 2;
     public static final int RIGHT_ENCODER_PORT_B = 3;
-    public static final boolean LEFT_ENCODER_REVERSED = false;
-    public static final boolean RIGHT_ENCODER_REVERSED = true;
-    public static final boolean LEFT_MOTORS_REVERSED = false;
-    public static final boolean RIGHT_MOTORS_REVERSED = true;
+    public static final boolean LEFT_ENCODER_REVERSED = true;
+    public static final boolean RIGHT_ENCODER_REVERSED = false;
+    public static final boolean LEFT_MOTORS_REVERSED = true;
+    public static final boolean RIGHT_MOTORS_REVERSED = false;
 
     // Switches
     public static final int LIMIT_CH = 4;

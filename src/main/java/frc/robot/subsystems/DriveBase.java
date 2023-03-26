@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 //import frc.robot.commands.ShiftGear;
+import frc.robot.Constants.OperatorConstants;
 
 //import com.github.yehpop.nfsensors.*;
 
@@ -111,6 +112,8 @@ public class DriveBase extends SubsystemBase {
 
     // Construct odometry object
     m_hOdometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+    OperatorConstants.DRIVER_DASHBOARD.add("left encoder", m_leftEncoder);
+    OperatorConstants.DRIVER_DASHBOARD.add("right encoder", m_rightEncoder);
   }
 
   public void setSpeeds(DifferentialDriveWheelSpeeds speeds, boolean isTest) {
@@ -246,19 +249,19 @@ public class DriveBase extends SubsystemBase {
   }
 
   public CommandBase high() {
-    return this.runEnd(() -> {m_leftMotors.setVoltage(10); m_rightMotors.setVoltage(10);}, () -> {m_rightMotors.stopMotor(); m_leftMotors.stopMotor();});
-  }
-
-  public CommandBase low() {
-    return this.runEnd(() -> {m_leftMotors.setVoltage(7); m_rightMotors.setVoltage(7);}, () -> {m_rightMotors.stopMotor(); m_leftMotors.stopMotor();});
+    return this.runEnd(() -> {m_leftMotors.setVoltage(7);}, () -> {m_leftMotors.stopMotor();});
   }
 
   public CommandBase highrev() {
-    return this.runEnd(() -> {m_leftMotors.setVoltage(-10); m_rightMotors.setVoltage(-10);}, () -> {m_rightMotors.stopMotor(); m_leftMotors.stopMotor();});
+  return this.runEnd(() -> {m_leftMotors.setVoltage(-7);}, () -> {m_leftMotors.stopMotor();});
+  }
+
+  public CommandBase low() {
+    return this.runEnd(() -> {m_rightMotors.setVoltage(7);}, () -> {m_rightMotors.stopMotor();});
   }
 
   public CommandBase lowrev()  {
-    return this.runEnd(() -> {m_leftMotors.setVoltage(-7); m_rightMotors.setVoltage(-7);}, () -> {m_rightMotors.stopMotor(); m_leftMotors.stopMotor();});
+    return this.runEnd(() -> {m_rightMotors.setVoltage(-7);}, () -> {m_rightMotors.stopMotor();});
   }
 
   /**

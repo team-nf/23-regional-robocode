@@ -248,20 +248,20 @@ public class DriveBase extends SubsystemBase {
     return this.run(() -> {m_leftMotors.stopMotor(); m_rightMotors.stopMotor();});
   }
 
-  public CommandBase high() {
-    return this.runEnd(() -> {m_leftMotors.setVoltage(7);}, () -> {m_leftMotors.stopMotor();});
+  public CommandBase leftFwd(double voltage) {
+    return this.runEnd(() -> {m_leftMotors.setVoltage(voltage);}, () -> {m_leftMotors.stopMotor();});
   }
 
-  public CommandBase highrev() {
-  return this.runEnd(() -> {m_leftMotors.setVoltage(-7);}, () -> {m_leftMotors.stopMotor();});
+  public CommandBase leftRev(double voltage) {
+  return this.runEnd(() -> {m_leftMotors.setVoltage(voltage);}, () -> {m_leftMotors.stopMotor();});
   }
 
-  public CommandBase low() {
-    return this.runEnd(() -> {m_rightMotors.setVoltage(7);}, () -> {m_rightMotors.stopMotor();});
+  public CommandBase rightFwd(double voltage) {
+    return this.runEnd(() -> {m_rightMotors.setVoltage(voltage);}, () -> {m_rightMotors.stopMotor();});
   }
 
-  public CommandBase lowrev()  {
-    return this.runEnd(() -> {m_rightMotors.setVoltage(-7);}, () -> {m_rightMotors.stopMotor();});
+  public CommandBase rightRev(double voltage)  {
+    return this.runEnd(() -> {m_rightMotors.setVoltage(voltage);}, () -> {m_rightMotors.stopMotor();});
   }
 
   /**

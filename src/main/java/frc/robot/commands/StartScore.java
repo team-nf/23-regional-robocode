@@ -12,13 +12,11 @@ import frc.robot.subsystems.Turret;
 
 public class StartScore extends CommandBase {
   private final Gripper m_gripper;
-  private final Carriage m_carriage;
   private final Turret m_turret;
   /** Creates a new StartScore. */
   public StartScore(Turret turret, Carriage carriage, Gripper gripper) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_turret = turret;
-    m_carriage = carriage;
     m_gripper = gripper;
     addRequirements(turret, carriage, gripper);
   }

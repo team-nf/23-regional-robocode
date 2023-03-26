@@ -141,10 +141,10 @@ public class RobotContainer {
     // Brake
     m_driverController.x().whileTrue(m_driveBase.brake());
     // LEDs
-    m_driverController.leftBumper().whileTrue(m_driveBase.highrev());
-    m_driverController.rightBumper().whileTrue(m_driveBase.lowrev());
-    m_driverController.leftTrigger().whileTrue(m_driveBase.high());
-    m_driverController.rightTrigger().whileTrue(m_driveBase.low());
+    m_driverController.leftBumper().whileTrue(m_driveBase.leftRev(10));
+    m_driverController.rightBumper().whileTrue(m_driveBase.rightRev(10));
+    m_driverController.leftTrigger(0.2).whileTrue(m_driveBase.leftFwd(m_driverController.getLeftTriggerAxis() * 12));
+    m_driverController.rightTrigger(0.2).whileTrue(m_driveBase.rightFwd(m_driverController.getRightTriggerAxis() * 12));
 
     // Turret
     m_operatorController.b().whileTrue(m_turret.power(0));
@@ -218,6 +218,6 @@ public class RobotContainer {
   //  }
   //}
   public Command getAutonomousCommand() {
-    return Commands.runEnd(() -> m_driveBase.tankDrive(0.7, 0.7),() -> m_driveBase.brake(), m_driveBase).withTimeout(2.15);
+    return Commands.runEnd(() -> m_driveBase.tankDrive(0.79, 0.74),() -> m_driveBase.brake(), m_driveBase).withTimeout(2.5);
   }
 }

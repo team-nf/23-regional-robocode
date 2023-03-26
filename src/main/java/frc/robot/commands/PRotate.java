@@ -11,7 +11,6 @@ import frc.robot.subsystems.Turret;
 import static frc.robot.Constants.TurretConstants.*;
 
 public class PRotate extends ProfiledPIDCommand{
-    private final Turret m_turret;
     public PRotate(double angle, Turret turret, CommandXboxController controller) {
         super(
             new ProfiledPIDController(COEFF.P, COEFF.I, COEFF.D, new TrapezoidProfile.Constraints(COEFF.MAX_ACC, COEFF.MAX_VEL)), 
@@ -22,8 +21,6 @@ public class PRotate extends ProfiledPIDCommand{
 
         //getController().enableContinuousInput(-180, 180);
         getController().setTolerance(COEFF.ALLOWED_ERR, COEFF.MAX_RPM);  // max rpm is the allowed error of velocity. sorry for the sloppy writing
-
-        m_turret = turret;
     }
     /**
      * Unsure if this is the right way to do this.
